@@ -1,0 +1,136 @@
+﻿@implements IDisposable
+@inject BlazorService BlazorService
+@inject IProduct ProductService
+@inject IFillter FillterService
+@page "/"
+
+<PageTitle>...</PageTitle>
+<div class="container">
+    <div class="products-grid">
+        @foreach (var (item, index) in BlazorService.Products.Select((value, index) => (value, index)))
+        {
+            <a href="/product/@item.Id" class="product-item">
+                <div class="product-image">
+                    <AutoSliderImage Id="@item.Id" Index="@index" />
+                </div>
+                <div class="product-info">
+                    <h3>@item.Name</h3>
+                    <p class="product-price">@item.Price</p>
+                </div>
+            </a>
+        }
+    </div>
+    <div class="filter-container">
+        <div class="dropdown">
+            <input type="checkbox" id="FillCategories" />
+            <label for="FillCategories">Выберите Категорию</label>
+            <div class="dropdown-menu">
+                @foreach (var item in BlazorService.Categories)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillCategory(item.Name, (bool)args.Value))" />
+                        <label class="form-check-label" for="@item.Name">
+                            @item.Name
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+
+
+        <div class="dropdown">
+            <input type="checkbox" id="FillColors" />
+            <label for="FillColors">Выберите Цвет:</label>
+            <div class="dropdown-menu">
+                @foreach (var item in BlazorService.Colors)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillColor(item.Name, (bool)args.Value))" />
+                        <label class="form-check-label" for="@item.Name">
+                            @item.Name
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <input type="checkbox" id="FillSeason" />
+            <label for="FillSeason">Выберите Cезон:</label>
+            <div class="dropdown-menu">
+                @foreach (var item in BlazorService.Seasons)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillSeason(item.Name, (bool)args.Value))" />
+                        <label class="form-check-label" for="@item.Name">
+                            @item.Name
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <input type="checkbox" id="FillSizes" />
+            <label for="FillSizes">Выберите Размер:</label>
+            <div class="dropdown-menu">
+                @foreach (var item in BlazorService.Sizes)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillSize(item.Name, (bool)args.Value))" />
+                        <label class="form-check-label" for="@item.Name">
+                            @item.Name
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnFilterChanged { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        BlazorService.ProductAdded += UpdateItems;
+        StateHasChanged();
+    }
+
+    private async Task FillTypeItems(string color, bool value)
+    {
+        await FillterService.FillTypeItems(color, value);
+        await OnFilterChanged.InvokeAsync();
+    }
+    private async Task FillCategory(string color, bool value)
+    {
+        await FillterService.FillCategory(color, value);
+        await OnFilterChanged.InvokeAsync();
+    }
+    private async Task FillColor(string color, bool value)
+    {
+        await FillterService.FillColor(color, value);
+        await OnFilterChanged.InvokeAsync();
+    }
+    private async Task FillSeason(string color, bool value)
+    {
+        await FillterService.FillSeason(color, value);
+        await OnFilterChanged.InvokeAsync();
+    }
+    private async Task FillSize(string color, bool value)
+    {
+        await FillterService.FillSize(color, value);
+        await OnFilterChanged.InvokeAsync();
+    }
+
+    private async void UpdateItems()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        BlazorService.ProductAdded -= UpdateItems;
+    }
+}

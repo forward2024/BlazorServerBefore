@@ -1,0 +1,8 @@
+﻿.hidden {
+    display: none;
+}
+
+.notification-success {
+    color: green;
+    /* добавьте другие стили для успешных уведомлений */
+}

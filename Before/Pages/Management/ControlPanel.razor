@@ -1,0 +1,50 @@
+﻿@inject BlazorService BlazorService
+@inject IProduct ServiceProduct
+@page "/ControlPanel"
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Id</th>
+            <th>Название</th>
+            <th>Цена</th>
+            <th>Категория</th>
+            <th>Продавец</th>
+            <th>Тип</th>
+            <th></th>
+            <th><a href="/addProduct" class="btn btn-success">Добавить товар</a></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in BlazorService.Products)
+        {
+            <tr>
+                @{
+                    var productImage = BlazorService.ProductImages.FirstOrDefault(v => v.ProductId == product.Id);
+                }
+                <td><img src="@(productImage != null ? productImage.ImageURL : "default-image-url")" style="width: 100px" /></td>
+                <td>@product.Id</td>
+                <td>@product.Name</td>
+                <td>@product.Price</td>
+                <td>@product.Category.Name</td>
+                <td>@product.Seller.Name</td>
+                <td>@product.TypeItem.Name</td>
+                <td><a href="/editproduct/@product.Id" class="btn btn-primary">Редактировать</a></td>
+                <td><button @onclick="@(() => DeleteProduct(product.Id))" class="btn btn-danger">Удалить</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
+
+@code {
+    private async Task DeleteProduct(int id)
+    {
+        await ServiceProduct.DeleteProductAsync(id);
+    }
+}

@@ -1,0 +1,14 @@
+﻿@inject BlazorService BlazorService
+
+<div class="slider">
+    <div class="slider-wrapper">
+        @foreach(var item in BlazorService.ProductImages.Where(v => v.ProductId == Id))
+        {
+        <img src="@item.ImageURL" style="width: 100px" />
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+}

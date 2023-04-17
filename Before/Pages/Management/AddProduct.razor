@@ -1,0 +1,159 @@
+﻿@inject NavigationManager NavigationManager
+@inject BlazorService BlazorService
+@inject HttpClient HttpClient
+@inject IProduct ProductService
+@inject ICategory CategoryService
+@page "/addProduct"
+
+
+<h3>Add Product</h3>
+
+<EditForm Model="@product" OnValidSubmit="@AddProductAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="@product.Name" />
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="@product.Description" />
+    </div>
+
+    <div class="form-group">
+        <label for="price">Price:</label>
+        <InputNumber id="price" class="form-control" @bind-Value="@product.Price" />
+    </div>
+
+    <div class="form-group">
+        <label for="action">Action:</label>
+        <InputNumber id="action" class="form-control" @bind-Value="@product.Action" />
+    </div>
+
+    <div class="form-group">
+        <label for="imageFiles">Image Files:</label>
+        <InputFile id="imageFiles" multiple OnChange="@OnImageFilesSelected" />
+        @if (selectedFiles.Count > 0)
+        {
+            <a @onclick="ClearImage" class="btn btn-danger">Очистить список фотографий</a>
+        }
+    </div>
+
+    <div class="form-group">
+        <label for="category">Category:</label>
+        <InputSelect id="category" class="form-control" @bind-Value="@product.CategoryId">
+            @foreach (var category in BlazorService.Categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="typeitem">Type item:</label>
+        <InputSelect id="typeitem" class="form-control" @bind-Value="@product.TypeItemId">
+            @foreach (var typeItem in BlazorService.TypeItems)
+            {
+                <option value="@typeItem.Id">@typeItem.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="seller">Seller:</label>
+        <InputSelect id="seller" class="form-control" @bind-Value="@product.SellerId">
+            @foreach (var seller in BlazorService.Sellers)
+            {
+                <option value="@seller.Id">@seller.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <button type="button" class="btn btn-primary" @onclick="ShowSizeModal">Add Size</button>
+        <AddSizeModel @ref="addSizeModel" OnSizeAdded="@OnSizeAddedHandler" />
+    </div>
+
+    <div class="form-group">
+        <button type="button" class="btn btn-primary" @onclick="ShowSeasonModal">Add Season</button>
+        <AddSeasonModel @ref="addSeasonModel" OnSeasonProduct="@OnSeasonAddedHandler" />
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">Add Product</button>
+</EditForm>
+
+@code {
+    private Product product = new();
+    private List<IBrowserFile> selectedFiles = new List<IBrowserFile>();
+    private AddSizeModel addSizeModel;
+    private AddSeasonModel addSeasonModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    private async Task AddProductAsync()
+    {
+        var productId = await ProductService.AddProductAsync(product);
+        var content = new MultipartFormDataContent();
+        content.Add(new StringContent(productId.ToString()), "Id");
+
+        foreach (var file in selectedFiles)
+        {
+            var fileName = file.Name;
+            using (var stream = file.OpenReadStream())
+            {
+                var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                var fileBytes = memoryStream.ToArray();
+
+                var fileContent = new ByteArrayContent(fileBytes);
+                content.Add(fileContent, "files", fileName);
+            }
+        }
+
+        var response = await HttpClient.PostAsync($"{NavigationManager.BaseUri}api/Image", content);
+
+        if (response.IsSuccessStatusCode)
+        {
+            selectedFiles.Clear();
+        }
+
+        BlazorService.Changer();
+        NavigationManager.NavigateTo("/ControlPanel");
+    }
+
+    #region Image
+    private async Task OnImageFilesSelected(InputFileChangeEventArgs e)
+    {
+        selectedFiles.AddRange(e.GetMultipleFiles());
+    }
+    private async Task ClearImage()
+    {
+        selectedFiles.Clear();
+        StateHasChanged();
+    }
+    #endregion
+
+
+    private void ShowSizeModal()
+    {
+        addSizeModel.ToggleModal();
+    }
+    private void ShowSeasonModal()
+    {
+        addSeasonModel.ToggleModal();
+    }
+    private async Task OnSizeAddedHandler(SizeModel size)
+    {
+        product.Sizes.Add(size);
+    }
+    private async Task OnSeasonAddedHandler(SeasonModel season)
+    {
+        product.Seasons.Add(season);
+    }
+}

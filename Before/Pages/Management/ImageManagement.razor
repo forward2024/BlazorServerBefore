@@ -1,0 +1,92 @@
+﻿@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@inject BlazorService BlazorService
+@inject IImage ImageService
+
+<EditForm Model="@product" OnValidSubmit="AddImage">
+    @foreach (var item in BlazorService.ProductImages.Where(v => v.ProductId == Id))
+    {
+    <img src="@item.ImageURL" style="width: 100px" />
+    <button @onclick="@(() => DeleteImage(item.Id))">Delete</button>
+    <button @onclick="@(() => SwapImages(item.Id))">Do First</button>
+    }
+    <div class="form-group">
+        <label for="imageFiles">Image Files:</label>
+        <InputFile id="imageFiles" multiple OnChange="@OnImageFilesSelected" />
+    </div>
+    }
+    @if (selectedFiles.Count > 0)
+    {
+        <button type="submit">Добавить</button>
+    }
+</EditForm>
+
+
+
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Product product = new();
+
+    private List<IBrowserFile> selectedFiles = new List<IBrowserFile>();
+    private string notificationMessage = string.Empty;
+    private string notificationCssClass = "hidden";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != 0)
+        {
+            product = BlazorService.GetItemById(Id);
+        }
+    }
+
+    private async Task AddImage()
+    {
+        var content = new MultipartFormDataContent();
+        content.Add(new StringContent(Id.ToString()), "Id");
+
+        foreach (var file in selectedFiles)
+        {
+            var fileName = file.Name;
+            using (var stream = file.OpenReadStream())
+            {
+                var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                var fileBytes = memoryStream.ToArray();
+
+                var fileContent = new ByteArrayContent(fileBytes);
+                content.Add(fileContent, "files", fileName);
+            }
+        }
+
+        var response = await HttpClient.PostAsync($"{NavigationManager.BaseUri}api/Image", content);
+
+        if (response.IsSuccessStatusCode)
+        {
+            notificationMessage = "Фотографии успешно загружены!";
+            notificationCssClass = "notification-success";
+            selectedFiles.Clear();
+        }
+        else
+        {
+            notificationMessage = "Произошла ошибка при загрузке фотографий.";
+            notificationCssClass = "notification-error";
+        }
+    }
+
+    private async Task OnImageFilesSelected(InputFileChangeEventArgs e)
+    {
+        selectedFiles.AddRange(e.GetMultipleFiles());
+    }
+    private async Task DeleteImage(int Id)
+    {
+        await ImageService.DeleteImage(Id);
+    }
+
+    private async Task SwapImages(int Id)
+    {
+        var firstId = BlazorService.ProductImages.FirstOrDefault(v => v.ProductId == product.Id).Id;
+        await ImageService.SwapProductImagesAsync(firstId, Id);
+    }
+}

@@ -1,0 +1,66 @@
+﻿@inherits ComponentBase
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+@inject BlazorService BlazorService
+
+<div class="image-slider">
+    @foreach (var (item, index) in BlazorService.ProductImages.Where(v => v.ProductId == Id).Select((value, index) => (value, index)))
+    {
+        <img src="@item.ImageURL" class="slider-image @(index == currentImageIndex ? "active" : (index == previousImageIndex ? "previous" : "next"))" />
+    }
+</div>
+
+@code {
+    private System.Timers.Timer timer;
+    [Parameter] public int Id { get; set; }
+    [Parameter] public int Index { get; set; }
+
+    private int currentImageIndex = 0;
+    private int previousImageIndex = -1;
+    private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+    protected override async Task OnInitializedAsync()
+    {
+        timer = new System.Timers.Timer(5000);
+        timer.Elapsed += OnTimerElapsed;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+    }
+
+    private async void OnTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        await InvokeAsync(async () =>
+        {
+            try
+            {
+                await Task.Delay(Index * 200, cancellationTokenSource.Token);
+                if (!cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    NextImage();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+
+            }
+        });
+    }
+
+    private void NextImage()
+    {
+        int imageCount = BlazorService.ProductImages.Count(v => v.ProductId == Id);
+        if (imageCount == 0) return;
+
+        previousImageIndex = currentImageIndex;
+        currentImageIndex = (currentImageIndex + 1) % imageCount;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        timer?.Stop();
+        timer?.Dispose();
+        cancellationTokenSource.Cancel();
+        cancellationTokenSource.Dispose(); 
+    }
+}

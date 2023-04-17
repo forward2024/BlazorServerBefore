@@ -1,0 +1,35 @@
+﻿@inject BlazorService BlazorService
+@page "/product/{Id:int}"
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <ImageSlider Id="@Id" />
+        </div>
+        <div class="col-lg-6">
+            <h3 class="product-title">@product.Name</h3>
+            <p class="product-category">@product.Category.Name</p>
+            <p class="product-price">@product.Price.ToString() UAH</p>
+            <button class="btn btn-primary">Добавить в корзину</button>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4>Описание</h4>
+            <p>@product.Description</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Product product { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = BlazorService.GetItemById(Id);
+    }
+    //DetailsProduct.razor
+}
