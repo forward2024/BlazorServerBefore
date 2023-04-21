@@ -20,7 +20,7 @@ namespace Before.Service.ServiceBlazor
         
 
 
-        public Product GetItemById(int Id)
+        public  Product GetItemById(int Id)
         {
             return Products.First(v => v.Id == Id);
         }

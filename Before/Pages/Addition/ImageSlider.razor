@@ -1,14 +1,56 @@
 ﻿@inject BlazorService BlazorService
 
-<div class="slider">
-    <div class="slider-wrapper">
-        @foreach(var item in BlazorService.ProductImages.Where(v => v.ProductId == Id))
-        {
-        <img src="@item.ImageURL" style="width: 100px" />
-        }
-    </div>
+<div class="image-slider">
+    <button class="slider-button left" @onclick="PreviousImage" disabled="@isAnimating">&#10094;</button>
+    @foreach (var (item, index) in Images.Select((value, index) => (value, index)))
+    {
+        <img src="@item.ImageURL" class="slider-image @(index == currentImageIndex ? "active" : (index == GetPreviousIndex() ? "previous" : (index == GetNextIndex() ? "next" : "hidden")))" />
+    }
+    <button class="slider-button right" @onclick="NextImage" disabled="@isAnimating">&#10095;</button>
 </div>
 
 @code {
-    [Parameter] public int Id { get; set; }
+    [Parameter] public List<ImageModel> Images { get; set; }
+    private int currentImageIndex = 0;
+    private bool isAnimating = false;
+
+    private async Task PreviousImage()
+    {
+        if (isAnimating) return;
+
+        int imageCount = Images.Count;
+        if (imageCount == 0) return;
+
+        isAnimating = true;
+        currentImageIndex = (currentImageIndex - 1 + imageCount) % imageCount;
+        await Task.Delay(1000);
+        isAnimating = false;
+        StateHasChanged();
+    }
+
+    private async Task NextImage()
+    {
+        if (isAnimating) return;
+
+        int imageCount = Images.Count;
+        if (imageCount == 0) return;
+
+        isAnimating = true;
+        currentImageIndex = (currentImageIndex + 1) % imageCount;
+        await Task.Delay(1000);
+        isAnimating = false;
+        StateHasChanged();
+    }
+
+    private int GetPreviousIndex()
+    {
+        int imageCount = Images.Count;
+        return (currentImageIndex - 1 + imageCount) % imageCount;
+    }
+
+    private int GetNextIndex()
+    {
+        int imageCount = Images.Count;
+        return (currentImageIndex + 1) % imageCount;
+    }
 }

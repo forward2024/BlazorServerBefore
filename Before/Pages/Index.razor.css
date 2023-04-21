@@ -1,68 +1,60 @@
 ﻿.container {
-    display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-template-areas:
+        "products-grid filter-container";
+    align-items: start;
 }
-
-.filter-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-    .dropdown input[type="checkbox"]:checked + label + .dropdown-menu {
-        display: block;
-    }
-
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    padding: 12px 16px;
-    z-index: 1;
-    border-radius: 5px;
-    opacity: 0;
-    transition: all 0.3s ease;
-}
-
-.dropdown:hover .dropdown-menu {
-    display: block;
-    opacity: 1;
-}
-
-.form-check {
-    margin-bottom: 10px;
-}
-
 
 .products-grid {
+    grid-area: products-grid;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    grid-gap: 1rem;
-    flex-grow: 1;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+
+@media (max-width: 919px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 532px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
 }
 
 .product-item {
-    background-color: #f5f5f5;
-    padding: 1rem;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    background-color: red;
     display: flex;
     flex-direction: column;
     text-decoration: none;
     color: #333;
+    position: relative;
+    background: transparent;
+    box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.3);
 }
 
-    .product-item:hover {
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        transform: translateY(-3px);
-        transition: all 0.3s ease-in-out;
+    .product-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 355px;
+        background-color: rgba(0, 0, 0, .25);
+        z-index: 10;
     }
+
+    .product-item:hover::before {
+        background-color: rgba(0, 0, 0, 0);
+        width: 300px;
+        height: 10px;
+        color: white;
+    }
+
 
 .product-image {
     width: 100%;
@@ -84,3 +76,188 @@
         font-size: 1.1rem;
         color: #f44336;
     }
+
+
+.filter-container {
+    grid-area: filter-container;
+    display: grid;
+}
+
+
+
+
+
+
+.form-check {
+    transform: scale(0);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, max-height 0.3s ease-in-out;
+    max-height: 0;
+    overflow: hidden;
+}
+
+    .form-check.show-categories {
+        transform: scale(1);
+        max-height: 50px;
+        transition-delay: calc(var(--index) * 0.05s);
+    }
+
+    .form-check.show-colors {
+        transform: scale(1);
+        max-height: 50px;
+        transition-delay: calc(var(--index) * 0.05s);
+    }
+
+
+
+.FillCategories {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f8f8f8;
+    box-shadow: inset 0px 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all .3s ease-in-out;
+}
+.categories-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.box_category {
+    display: flex;
+    place-items: center;
+}
+
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    cursor: pointer;
+    user-select: none;
+}
+
+
+.custom-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.custom-checkmark {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 25px;
+    width: 25px;
+    background-color: #ccc;
+    border-radius: 50%;
+    margin-right: 8px;
+    transform: rotate(-50deg);
+    transition: all .5s;
+}
+
+.custom-checkbox:hover .custom-checkmark {
+    background-color: #b3b3b3;
+}
+
+.custom-checkmark::after {
+    content: "";
+    display: none;
+    width: 11px;
+    height: 11px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.custom-input:checked ~ .custom-checkmark::after {
+    display: block;
+}
+
+.custom-input:checked ~ .custom-checkmark {
+    background: rgb(255,252,0);
+    background: linear-gradient(90deg, rgba(255,252,0,1) 0%, rgba(255,0,0,1) 50%, rgba(209,0,255,1) 100%);
+    transition: background-color 150ms ease-in-out;
+}
+
+.but-category {
+    display: flex;
+}
+
+
+
+.FillColors {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f8f8f8;
+    box-shadow: inset 0px 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all .3s ease-in-out;
+}
+
+.colors-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    transition: transform 0.5s;
+}
+
+.color-container input[type="checkbox"] {
+    -webkit-appearance: none;
+    width: 45px;
+    height: 45px;
+    background-color: @item.Name;
+    outline: none;
+    border-radius: 50%;
+    position: relative;
+    transition: all .5s;
+}
+
+    .color-container input[type="checkbox"]:hover {
+        box-shadow: inset 0px 0px 20px rgba(0, 0, 0, 1);
+    }
+
+    .color-container input[type="checkbox"]:checked {
+        box-shadow: inset 0px 0px 20px rgba(0, 0, 0, 1);
+    }
+
+        .color-container input[type="checkbox"]:checked::after {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path  style="color:white" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M464 128L240 384l-96-96M144 384l-96-96M368 128L232 284"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+
+
+
+.FillSeason {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f8f8f8;
+    box-shadow: inset 0px 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all .3s ease-in-out;
+}
+
+.seasons-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.box_season {
+    display: flex;
+    place-items: center;
+}

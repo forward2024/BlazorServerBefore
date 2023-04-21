@@ -1,0 +1,50 @@
+﻿table {
+    position: relative;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+
+
+.hover-table tbody tr {
+    position: relative;
+    transition: all .6s;
+}
+    .hover-table tbody tr td {
+        position: relative;
+        z-index: 1;
+    }
+
+tbody tr {
+    box-shadow: inset 0px 10px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid #f8f8f8;
+    text-align: center;
+}
+
+.hover-red {
+
+    box-shadow: inset 0px 10px 30px rgba(255, 0, 0, 0.7);
+}
+.hover-green {
+    box-shadow: inset 0px 10px 40px rgba(0, 201, 50, 0.7);
+}
+button a{
+    transition: all 1s;
+}
+.delete-btn:hover {
+    transition: all .4s;
+    color: red;
+}
+.red_item:hover {
+    color: rgb(0, 201, 50);
+}
+.add_item:hover {
+    color: rgb(0, 201, 50);
+}

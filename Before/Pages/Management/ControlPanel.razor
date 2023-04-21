@@ -1,38 +1,63 @@
 ﻿@inject BlazorService BlazorService
 @inject IProduct ServiceProduct
+@inject ActiveUserCount ActiveUserCounter
+@using Microsoft.AspNetCore.Components.Web
 @page "/ControlPanel"
 
+@*<p>Користувачі: @ActiveUserCounter.ActiveUsers</p>*@
 
-<table class="table">
+<table class="hover-table">
     <thead>
         <tr>
             <th></th>
-            <th>Id</th>
-            <th>Название</th>
-            <th>Цена</th>
-            <th>Категория</th>
+            <th>Назва</th>
+            <th>Ціна</th>
+            <th>Категорія</th>
             <th>Продавец</th>
             <th>Тип</th>
             <th></th>
-            <th><a href="/addProduct" class="btn btn-success">Добавить товар</a></th>
+            <th>
+                <a href="/addProduct" class="add_item">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+                        <path d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z" fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" />
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M256 176v160M336 256H176" />
+                    </svg>
+                </a>
+            </th>
         </tr>
     </thead>
     <tbody>
         @foreach (var product in BlazorService.Products)
         {
-            <tr>
+            if (!rowClasses.ContainsKey(product.Id))
+            {
+                rowClasses[product.Id] = "";
+            }
+            <tr class="@rowClasses[product.Id]">
                 @{
                     var productImage = BlazorService.ProductImages.FirstOrDefault(v => v.ProductId == product.Id);
                 }
                 <td><img src="@(productImage != null ? productImage.ImageURL : "default-image-url")" style="width: 100px" /></td>
-                <td>@product.Id</td>
                 <td>@product.Name</td>
                 <td>@product.Price</td>
                 <td>@product.Category.Name</td>
                 <td>@product.Seller.Name</td>
                 <td>@product.TypeItem.Name</td>
-                <td><a href="/editproduct/@product.Id" class="btn btn-primary">Редактировать</a></td>
-                <td><button @onclick="@(() => DeleteProduct(product.Id))" class="btn btn-danger">Удалить</button></td>
+                <td>
+                    <a class="red_item" href="/editproduct/@product.Id"
+                   @onmouseover="@(() => HighlightRow(product.Id, true, "hover-green"))"
+                   @onmouseout="@(() => HighlightRow(product.Id, false))">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+                            <rect x="32" y="48" width="448" height="416" rx="48" ry="48" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32" />
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M96 112l80 64-80 64M192 240h64" />
+                        </svg>
+                    </a>
+                </td>
+                <td>
+                    <button @onclick="@(() => DeleteProduct(product.Id))" @onmouseover="@(() => HighlightRow(product.Id, true))" @onmouseout="@(() => HighlightRow(product.Id, false))" class="delete-btn reset-btn">
+                        Удалить
+                    </button>
+                </td>
             </tr>
         }
     </tbody>
@@ -43,8 +68,51 @@
 
 
 @code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        ActiveUserCounter.ActiveUsersChanged += RefreshData;
+        await base.OnInitializedAsync();
+    }
+
     private async Task DeleteProduct(int id)
     {
         await ServiceProduct.DeleteProductAsync(id);
+    }
+
+    private async Task RefreshData()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    private Dictionary<int, string> rowClasses = new Dictionary<int, string>();
+
+    private void HighlightRow(int productId, bool highlight)
+    {
+        if (highlight)
+        {
+            rowClasses[productId] = "hover-red";
+        }
+        else
+        {
+            rowClasses[productId] = "";
+        }
+    }
+    private void HighlightRow(int productId, bool highlight, string cssClass = "hover-red")
+    {
+        if (highlight)
+        {
+            rowClasses[productId] = cssClass;
+        }
+        else
+        {
+            rowClasses[productId] = "";
+        }
+    }
+
+    public void Dispose()
+    {
+        ActiveUserCounter.ActiveUsersChanged -= RefreshData;
     }
 }

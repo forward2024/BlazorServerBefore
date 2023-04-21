@@ -1,0 +1,27 @@
+﻿a, button {
+    transition: all 0.3s ease;
+    margin: 10px;
+}
+
+.Authorized {
+    display: flex;
+    place-items: center;
+    flex-direction: column;
+}
+button:hover {
+    color: red;
+}
+
+.NotAuthorized {
+    display: flex;
+    place-items: center;
+    flex-direction: column;
+}
+
+svg path {
+    transition: all 0.34s;
+}
+
+a:hover svg path {
+    color: lime;
+}

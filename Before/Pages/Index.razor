@@ -10,59 +10,24 @@
         @foreach (var (item, index) in BlazorService.Products.Select((value, index) => (value, index)))
         {
             <a href="/product/@item.Id" class="product-item">
-                <div class="product-image">
-                    <AutoSliderImage Id="@item.Id" Index="@index" />
-                </div>
-                <div class="product-info">
-                    <h3>@item.Name</h3>
-                    <p class="product-price">@item.Price</p>
-                </div>
+                <AutoSliderImage Id="@item.Id" Index="@index" Images="@item.Images" />
             </a>
         }
     </div>
+
+
     <div class="filter-container">
-        <div class="dropdown">
-            <input type="checkbox" id="FillCategories" />
-            <label for="FillCategories">Выберите Категорию</label>
-            <div class="dropdown-menu">
-                @foreach (var item in BlazorService.Categories)
-                {
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillCategory(item.Name, (bool)args.Value))" />
-                        <label class="form-check-label" for="@item.Name">
-                            @item.Name
-                        </label>
-                    </div>
-                }
-            </div>
-        </div>
-
-
-        <div class="dropdown">
-            <input type="checkbox" id="FillColors" />
-            <label for="FillColors">Выберите Цвет:</label>
-            <div class="dropdown-menu">
-                @foreach (var item in BlazorService.Colors)
-                {
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillColor(item.Name, (bool)args.Value))" />
-                        <label class="form-check-label" for="@item.Name">
-                            @item.Name
-                        </label>
-                    </div>
-                }
-            </div>
-        </div>
-
-        <div class="dropdown">
-            <input type="checkbox" id="FillSeason" />
-            <label for="FillSeason">Выберите Cезон:</label>
-            <div class="dropdown-menu">
+        <div class="FillSeason">
+            <div class="seasons-container">
                 @foreach (var item in BlazorService.Seasons)
                 {
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillSeason(item.Name, (bool)args.Value))" />
-                        <label class="form-check-label" for="@item.Name">
+                    <div class="box_season">
+                        <label class="custom-checkbox" for="@item.Name">
+                            <input class="custom-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillSeason(item.Name, (bool)args.Value))" />
+                            <span class="custom-checkmark">
+                                <span class="custom-checkmark-inner"></span>
+                                <span class="custom-checkmark-inner"></span>
+                            </span>
                             @item.Name
                         </label>
                     </div>
@@ -70,27 +35,93 @@
             </div>
         </div>
 
-        <div class="dropdown">
-            <input type="checkbox" id="FillSizes" />
-            <label for="FillSizes">Выберите Размер:</label>
-            <div class="dropdown-menu">
-                @foreach (var item in BlazorService.Sizes)
+        <div class="FillCategories">
+            <div class="categories-container">
+                @foreach (var (item, index) in BlazorService.Categories.Select((value, index) => (value, index)))
                 {
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillSize(item.Name, (bool)args.Value))" />
-                        <label class="form-check-label" for="@item.Name">
+                    <div class="box_category @(index <= 2 ? "" : "form-check") @(showMoreCategories && index >= 2 ? "show-categories" : "")" style="--index: @(index - 2)">
+                        <label class="custom-checkbox" for="@item.Name">
+                            <input class="custom-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillCategory(item.Name, (bool)args.Value))" />
+                            <span class="custom-checkmark">
+                                <span class="custom-checkmark-inner"></span>
+                                <span class="custom-checkmark-inner"></span>
+                            </span>
                             @item.Name
                         </label>
                     </div>
                 }
             </div>
+            <div class="dropdown-footer">
+                <button class="reset-btn  but-category" @onclick="ToggleMoreCategories">
+                    @if (showMoreCategories)
+                    {
+                        <svg style="transform: rotate(180deg);" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144" />
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144" />
+                        </svg>
+                    }
+                    Категорії
+                </button>
+            </div>
         </div>
 
+        <div class="FillColors">
+            <div class="colors-container">
+                @foreach (var (item, index) in BlazorService.Colors.Select((value, index) => (value, index)))
+                {
+                    <div class="box_color @(index < 6 ? "" : "form-check") @(showMoreColors && index >= 6 ? "show-colors" : "")" style="--index: @(index-6)">
+                        <div class="color-container">
+                            <input style="background-color: @item.Name;" class="color-checkbox" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillColor(item.Name, (bool)args.Value))" />
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="dropdown-footer">
+                <button class="reset-btn" @onclick="ToggleMoreColors">
+                    @if (showMoreColors)
+                    {
+                        <svg style="transform: rotate(180deg);" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144" />
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144" />
+                        </svg>
+                    }
+                    Кольори
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
 @code {
     [Parameter] public EventCallback OnFilterChanged { get; set; }
+
+
+    private bool showMoreCategories = false;
+    private void ToggleMoreCategories()
+    {
+        showMoreCategories = !showMoreCategories;
+    }
+    private bool showMoreColors = false;
+    private void ToggleMoreColors()
+    {
+        showMoreColors = !showMoreColors;
+    }
+    private bool showMoreSeasons = false;
+    private void ToggleMoreSeasons()
+    {
+        showMoreSeasons = !showMoreSeasons;
+    }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,14 +129,14 @@
         StateHasChanged();
     }
 
-    private async Task FillTypeItems(string color, bool value)
+    private async Task FillTypeItems(string type, bool value)
     {
-        await FillterService.FillTypeItems(color, value);
+        await FillterService.FillTypeItems(type, value);
         await OnFilterChanged.InvokeAsync();
     }
-    private async Task FillCategory(string color, bool value)
+    private async Task FillCategory(string category, bool value)
     {
-        await FillterService.FillCategory(color, value);
+        await FillterService.FillCategory(category, value);
         await OnFilterChanged.InvokeAsync();
     }
     private async Task FillColor(string color, bool value)
@@ -113,14 +144,9 @@
         await FillterService.FillColor(color, value);
         await OnFilterChanged.InvokeAsync();
     }
-    private async Task FillSeason(string color, bool value)
+    private async Task FillSeason(string season, bool value)
     {
-        await FillterService.FillSeason(color, value);
-        await OnFilterChanged.InvokeAsync();
-    }
-    private async Task FillSize(string color, bool value)
-    {
-        await FillterService.FillSize(color, value);
+        await FillterService.FillSeason(season, value);
         await OnFilterChanged.InvokeAsync();
     }
 

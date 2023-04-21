@@ -4,51 +4,52 @@
 @inject BlazorService BlazorService
 
 <div class="image-slider">
-    @foreach (var (item, index) in BlazorService.ProductImages.Where(v => v.ProductId == Id).Select((value, index) => (value, index)))
+    @foreach (var (item, index) in Images.Select((value, index) => (value, index)))
     {
         <img src="@item.ImageURL" class="slider-image @(index == currentImageIndex ? "active" : (index == previousImageIndex ? "previous" : "next"))" />
     }
 </div>
 
 @code {
-    private System.Timers.Timer timer;
     [Parameter] public int Id { get; set; }
     [Parameter] public int Index { get; set; }
+    [Parameter] public List<ImageModel> Images { get; set; }
 
     private int currentImageIndex = 0;
     private int previousImageIndex = -1;
     private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        timer = new System.Timers.Timer(5000);
-        timer.Elapsed += OnTimerElapsed;
-        timer.AutoReset = true;
-        timer.Enabled = true;
+        if (firstRender)
+        {
+            await StartSliderAsync();
+        }
     }
 
-    private async void OnTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+    private async Task StartSliderAsync()
     {
-        await InvokeAsync(async () =>
+        await Task.Run(async () =>
         {
             try
             {
-                await Task.Delay(Index * 200, cancellationTokenSource.Token);
-                if (!cancellationTokenSource.Token.IsCancellationRequested)
+                await Task.Delay(Index * 250, cancellationTokenSource.Token);
+                while (!cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    NextImage();
+                    await InvokeAsync(NextImage);
+                    await Task.Delay(4000, cancellationTokenSource.Token);
                 }
             }
             catch (OperationCanceledException)
             {
-
+                
             }
         });
     }
 
     private void NextImage()
     {
-        int imageCount = BlazorService.ProductImages.Count(v => v.ProductId == Id);
+        int imageCount = Images.Count;
         if (imageCount == 0) return;
 
         previousImageIndex = currentImageIndex;
@@ -58,9 +59,7 @@
 
     public void Dispose()
     {
-        timer?.Stop();
-        timer?.Dispose();
         cancellationTokenSource.Cancel();
-        cancellationTokenSource.Dispose(); 
+        cancellationTokenSource.Dispose();
     }
 }

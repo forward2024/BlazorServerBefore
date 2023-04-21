@@ -14,6 +14,7 @@ using Before.Service.ServiceBlazor;
 using Before.Service.ServiceFillter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -46,6 +47,8 @@ builder.Services.AddScoped<ISize, SizeService>();
 builder.Services.AddScoped<ISeason, SeasonService>();
 builder.Services.AddScoped<IFillter, FillterService>();
 builder.Services.AddSingleton<BlazorService>();
+builder.Services.AddSingleton<ActiveUserCount>();
+builder.Services.AddTransient<CircuitHandler, ActiveUserCircuitHandler>();
 
 
 builder.Services.AddHttpClient("ServerHttpClient", client =>
@@ -103,7 +106,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapBlazorHub();
+    endpoints.MapFallbackToPage("/_Host");
+});
 
 app.Run();

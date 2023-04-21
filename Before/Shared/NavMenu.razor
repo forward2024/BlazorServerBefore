@@ -1,39 +1,22 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Before</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
-
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="ControlPanel">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> ControlPanel
-            </NavLink>
+﻿<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="navbar">
+        <div class="hel">
+            <a href="ControlPanel">
+                <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><rect x="128" y="128" width="336" height="336" rx="57" ry="57" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32" /><path d="M383.5 128l.5-24a56.16 56.16 0 00-56-56H112a64.19 64.19 0 00-64 64v216a56.16 56.16 0 0056 56h24M296 216v160M376 296H216" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" /></svg>
+            </a>
         </div>
     </nav>
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    [Parameter] public bool collapseNavMenu { get; set; } = true;
+    [Parameter] public EventCallback OnToggleNavMenu { get; set; }
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    public string? NavMenuCssClass => collapseNavMenu ? "" : "open";
 
-    private void ToggleNavMenu()
+    private async Task ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+        await OnToggleNavMenu.InvokeAsync();
     }
 }
