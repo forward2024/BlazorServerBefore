@@ -5,8 +5,9 @@ namespace Before.Service.ServiceProduct
     public interface IProduct
     {
         Task GetAllAsync();
-        Task<int> AddProductAsync(Product product);
-        Task UpdateProductAsync(Product product);
+        Task<Product> GetProductByIdAsync(int id);
+        Task<bool> UpdateProductAsync(Product product);
+        Task AddProductAsync(Product product);
         Task DeleteProductAsync(int Id);
     }
 }

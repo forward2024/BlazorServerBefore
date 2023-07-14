@@ -4,13 +4,13 @@
     <button class="slider-button left" @onclick="PreviousImage" disabled="@isAnimating">&#10094;</button>
     @foreach (var (item, index) in Images.Select((value, index) => (value, index)))
     {
-        <img src="@item.ImageURL" class="slider-image @(index == currentImageIndex ? "active" : (index == GetPreviousIndex() ? "previous" : (index == GetNextIndex() ? "next" : "hidden")))" />
+        <img src="@item" class="slider-image @(index == currentImageIndex ? "active" : (index == GetPreviousIndex() ? "previous" : (index == GetNextIndex() ? "next" : "hidden")))" />
     }
     <button class="slider-button right" @onclick="NextImage" disabled="@isAnimating">&#10095;</button>
 </div>
 
 @code {
-    [Parameter] public List<ImageModel> Images { get; set; }
+    [Parameter] public List<string> Images { get; set; }
     private int currentImageIndex = 0;
     private bool isAnimating = false;
 

@@ -73,12 +73,12 @@
 
     <div class="form-group">
         <button type="button" class="btn btn-primary" @onclick="ShowSizeModal">Add Size</button>
-        <AddSizeModel @ref="addSizeModel" OnSizeAdded="@OnSizeAddedHandler" />
+        <AddSizeModel @ref="addSizeModel" OnSize="@OnSizeAddedHandler" />
     </div>
 
     <div class="form-group">
         <button type="button" class="btn btn-primary" @onclick="ShowSeasonModal">Add Season</button>
-        <AddSeasonModel @ref="addSeasonModel" OnSeasonProduct="@OnSeasonAddedHandler" />
+        <AddSeasonModel @ref="addSeasonModel" OnSeason="@OnSeasonAddedHandler" />
     </div>
 
 
@@ -98,32 +98,22 @@
 
     private async Task AddProductAsync()
     {
-        var productId = await ProductService.AddProductAsync(product);
-        var content = new MultipartFormDataContent();
-        content.Add(new StringContent(productId.ToString()), "Id");
-
         foreach (var file in selectedFiles)
         {
-            var fileName = file.Name;
             using (var stream = file.OpenReadStream())
             {
                 var memoryStream = new MemoryStream();
                 await stream.CopyToAsync(memoryStream);
                 var fileBytes = memoryStream.ToArray();
+                var base64ImageRepresentation = Convert.ToBase64String(fileBytes);
 
-                var fileContent = new ByteArrayContent(fileBytes);
-                content.Add(fileContent, "files", fileName);
+                product.Images.Add($"data:image/jpeg;base64,{base64ImageRepresentation}");
             }
         }
 
-        var response = await HttpClient.PostAsync($"{NavigationManager.BaseUri}api/Image", content);
+        await ProductService.AddProductAsync(product);
 
-        if (response.IsSuccessStatusCode)
-        {
-            selectedFiles.Clear();
-        }
-
-        BlazorService.Changer();
+        selectedFiles.Clear();
         NavigationManager.NavigateTo("/ControlPanel");
     }
 
@@ -140,6 +130,16 @@
     #endregion
 
 
+    private async Task OnSizeAddedHandler(string size)
+    {
+        product.Sizes.Add(size);
+    }
+
+    private async Task OnSeasonAddedHandler(string season)
+    {
+        product.Seasons.Add(season);
+    }
+
     private void ShowSizeModal()
     {
         addSizeModel.ToggleModal();
@@ -147,13 +147,5 @@
     private void ShowSeasonModal()
     {
         addSeasonModel.ToggleModal();
-    }
-    private async Task OnSizeAddedHandler(SizeModel size)
-    {
-        product.Sizes.Add(size);
-    }
-    private async Task OnSeasonAddedHandler(SeasonModel season)
-    {
-        product.Seasons.Add(season);
     }
 }

@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @page "/ControlPanel"
 
-@*<p>Користувачі: @ActiveUserCounter.ActiveUsers</p>*@
+
 
 <table class="hover-table">
     <thead>
@@ -34,10 +34,7 @@
                 rowClasses[product.Id] = "";
             }
             <tr class="@rowClasses[product.Id]">
-                @{
-                    var productImage = BlazorService.ProductImages.FirstOrDefault(v => v.ProductId == product.Id);
-                }
-                <td><img src="@(productImage != null ? productImage.ImageURL : "default-image-url")" style="width: 100px" /></td>
+                <td><img src="@(product.Images.Any() ? product.Images[0] : "default-product-img.jpg")" style="width: 100px" /></td>
                 <td>@product.Name</td>
                 <td>@product.Price</td>
                 <td>@product.Category.Name</td>

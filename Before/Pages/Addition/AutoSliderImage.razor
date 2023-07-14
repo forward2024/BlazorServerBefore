@@ -6,14 +6,14 @@
 <div class="image-slider">
     @foreach (var (item, index) in Images.Select((value, index) => (value, index)))
     {
-        <img src="@item.ImageURL" class="slider-image @(index == currentImageIndex ? "active" : (index == previousImageIndex ? "previous" : "next"))" />
+        <img src="@item" class="slider-image @(index == currentImageIndex ? "active" : (index == previousImageIndex ? "previous" : "next"))" />
     }
 </div>
 
 @code {
     [Parameter] public int Id { get; set; }
     [Parameter] public int Index { get; set; }
-    [Parameter] public List<ImageModel> Images { get; set; }
+    [Parameter] public List<string> Images { get; set; }
 
     private int currentImageIndex = 0;
     private int previousImageIndex = -1;

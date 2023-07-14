@@ -1,8 +1,61 @@
-﻿.hidden {
-    display: none;
+﻿.image_item {
+    position: relative;
+    width: 200px;
+    overflow: hidden;
+    border: 1px solid #ccc;
 }
 
-.notification-success {
-    color: green;
-    /* добавьте другие стили для успешных уведомлений */
+    .image_item img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .image_item .button_container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .image_item:hover .button_container {
+        opacity: 1;
+    }
+        .button_container button:hover{
+            color: red;
+        }
+
+        .image_item button {
+            padding: 5px 0;
+            color: white;
+            background-color: black;
+            border: none;
+            flex: 1;
+            text-align: center;
+        }
+
+.image_container {
+    display: flex;
+    flex-wrap: wrap;
 }
+
+.form-group, .submit-btn {
+    margin-top: 20px;
+}
+
+.submit-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+    .submit-btn:hover {
+        background-color: #45a049;
+    }

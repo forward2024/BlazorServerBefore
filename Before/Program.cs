@@ -1,27 +1,24 @@
 global using Before.Service.ServiceProduct;
+global using Before.Service.ProductService;
+global using Before.Service.ServiceAddition.ServiceCategory;
+global using Before.Service.ServiceAddition.ServiceColor;
+global using Before.Service.ServiceAddition.ServiceSeason;
+global using Before.Service.ServiceAddition.ServiceSeller;
+global using Before.Service.ServiceAddition.ServiceSize;
+global using Before.Service.ServiceAddition.ServiceTypeItem;
+global using Before.Service.ServiceBlazor;
+global using Before.Service.ServiceFillter;
 using Before.Areas.Identity;
 using Before.Data;
 using Before.Data.Models;
-using Before.Service.ProductService;
-using Before.Service.ServiceAddition.ServiceCategory;
-using Before.Service.ServiceAddition.ServiceColor;
-using Before.Service.ServiceAddition.ServiceImage;
-using Before.Service.ServiceAddition.ServiceSeason;
-using Before.Service.ServiceAddition.ServiceSeller;
-using Before.Service.ServiceAddition.ServiceSize;
-using Before.Service.ServiceAddition.ServiceTypeItem;
-using Before.Service.ServiceBlazor;
-using Before.Service.ServiceFillter;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -30,18 +27,21 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+var dbSettingsSection = builder.Configuration.GetSection("MongoDb");
+var dbSettings = dbSettingsSection.Get<MongoDBSettings>();
 
+builder.Services.AddSingleton<IMongoDBSettings>(dbSettings);
 
+builder.Services.AddScoped(sp => new MongoDbContext(sp.GetRequiredService<IMongoDBSettings>()));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddScoped(sp => new HttpClient());
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
-
 builder.Services.AddScoped<ITypeItem, TypeItemService>();
 builder.Services.AddScoped<IProduct, ProductService>();
 builder.Services.AddScoped<ICategory, CategoryService>();
 builder.Services.AddScoped<ISeller, SellerService>();
-builder.Services.AddScoped<IImage, ImageService>();
 builder.Services.AddScoped<IColor, ColorService>();
 builder.Services.AddScoped<ISize, SizeService>();
 builder.Services.AddScoped<ISeason, SeasonService>();
@@ -50,11 +50,6 @@ builder.Services.AddSingleton<BlazorService>();
 builder.Services.AddSingleton<ActiveUserCount>();
 builder.Services.AddTransient<CircuitHandler, ActiveUserCircuitHandler>();
 
-
-builder.Services.AddHttpClient("ServerHttpClient", client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["ApiBaseAddress"]);
-});
 
 
 var app = builder.Build();
@@ -69,7 +64,6 @@ using (var scope = app.Services.CreateScope())
     var productService = scope.ServiceProvider.GetRequiredService<IProduct>();
     var categoryService = scope.ServiceProvider.GetRequiredService<ICategory>();
     var sellerService = scope.ServiceProvider.GetRequiredService<ISeller>();
-    var typeImageService = scope.ServiceProvider.GetRequiredService<IImage>();
     var typeColorService = scope.ServiceProvider.GetRequiredService<IColor>();
     var typeSizeService = scope.ServiceProvider.GetRequiredService<ISize>();
     var typeSeasonService = scope.ServiceProvider.GetRequiredService<ISeason>();
@@ -77,14 +71,12 @@ using (var scope = app.Services.CreateScope())
     await productService.GetAllAsync();
     await categoryService.GetAllAsync();
     await sellerService.GetAllAsync();
-    await typeImageService.GetAllAsync();
     await typeColorService.GetAllAsync();
     await typeSizeService.GetAllAsync();
     await typeSeasonService.GetAllAsync();
     scope.ServiceProvider.GetRequiredService<BlazorService>();
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -92,7 +84,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

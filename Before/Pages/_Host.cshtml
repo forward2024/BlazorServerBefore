@@ -31,33 +31,5 @@
     </div>
 
     <script src="_framework/blazor.server.js"></script>
-    @*<script>
-        window.getSliderWidth = function (slider) {
-            return slider.clientWidth;
-        }
-    </script>*@
-    @*<script>
-        window.blazorHelpers = {
-            visibilityEventListeners: new Map(),
-            visibilityChanged: function (visible) {
-                for (let callback of this.visibilityEventListeners.values()) {
-                    callback.invokeMethodAsync('OnVisibilityChanged', visible);
-                }
-            },
-            addVisibilityEventListener: function (instance) {
-                const callback = instance;
-                this.visibilityEventListeners.set(instance, callback);
-                callback.invokeMethodAsync('OnVisibilityChanged', document.visibilityState === 'visible');
-            },
-            removeVisibilityEventListener: function (instance) {
-                this.visibilityEventListeners.delete(instance);
-            }
-        };
-
-        document.addEventListener('visibilitychange', () => {
-            window.blazorHelpers.visibilityChanged(document.visibilityState === 'visible');
-        });
-    </script>*@
-
 </body>
 </html>

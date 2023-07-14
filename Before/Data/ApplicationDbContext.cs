@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Before.Data
 {
@@ -15,9 +14,6 @@ namespace Before.Data
 
         public DbSet<TypeItem> TypeItems { get; set; }
         public DbSet<Product> Products { get; set; }
-        public DbSet<ImageModel> ProductImages { get; set; }
-        public DbSet<SizeModel> SizeProducts { get; set; }
-        public DbSet<SeasonModel> ProductSeasons { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Seller> Sellers { get; set; }
         public DbSet<Color> Colors { get; set; }
@@ -31,11 +27,6 @@ namespace Before.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(x => x.UserId);
 
-            modelBuilder.Entity<SeasonModel>(entity =>
-            {
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd();
-            });
 
             modelBuilder.Entity<Color>().HasData(
                 new Color { Id = 1, Name = "#ff0000" }, // Red

@@ -19,6 +19,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Product v = new Product();
         product = BlazorService.GetItemById(Id);
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Before.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230417081044_main1")]
-    partial class main1
+    [Migration("20230622150809_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -234,6 +234,28 @@ namespace Before.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Before.Data.Models.ImageModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageURL")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImages");
+                });
+
             modelBuilder.Entity("Before.Data.Models.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -276,82 +298,6 @@ namespace Before.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Before.Data.Models.ProductImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ImageURL")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductImages");
-                });
-
-            modelBuilder.Entity("Before.Data.Models.ProductSeason", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SeasonId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("SeasonId");
-
-                    b.ToTable("ProductSeasons");
-                });
-
-            modelBuilder.Entity("Before.Data.Models.ProductSize", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ColorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SizeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ColorId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("SizeId");
-
-                    b.ToTable("SizeProducts");
-                });
-
             modelBuilder.Entity("Before.Data.Models.Season", b =>
                 {
                     b.Property<int>("Id")
@@ -389,6 +335,29 @@ namespace Before.Migrations
                             Id = 4,
                             Name = "Winter"
                         });
+                });
+
+            modelBuilder.Entity("Before.Data.Models.SeasonModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SeasonId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SeasonId");
+
+                    b.ToTable("ProductSeasons");
                 });
 
             modelBuilder.Entity("Before.Data.Models.Seller", b =>
@@ -477,6 +446,37 @@ namespace Before.Migrations
                             Id = 5,
                             Name = "XL"
                         });
+                });
+
+            modelBuilder.Entity("Before.Data.Models.SizeModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ColorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ColorId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SizeId");
+
+                    b.ToTable("SizeProducts");
                 });
 
             modelBuilder.Entity("Before.Data.Models.TypeItem", b =>
@@ -727,6 +727,17 @@ namespace Before.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Before.Data.Models.ImageModel", b =>
+                {
+                    b.HasOne("Before.Data.Models.Product", "Product")
+                        .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Before.Data.Models.Product", b =>
                 {
                     b.HasOne("Before.Data.Models.Category", "Category")
@@ -754,18 +765,7 @@ namespace Before.Migrations
                     b.Navigation("TypeItem");
                 });
 
-            modelBuilder.Entity("Before.Data.Models.ProductImage", b =>
-                {
-                    b.HasOne("Before.Data.Models.Product", "Product")
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("Before.Data.Models.ProductSeason", b =>
+            modelBuilder.Entity("Before.Data.Models.SeasonModel", b =>
                 {
                     b.HasOne("Before.Data.Models.Product", "Product")
                         .WithMany("Seasons")
@@ -784,7 +784,7 @@ namespace Before.Migrations
                     b.Navigation("Season");
                 });
 
-            modelBuilder.Entity("Before.Data.Models.ProductSize", b =>
+            modelBuilder.Entity("Before.Data.Models.SizeModel", b =>
                 {
                     b.HasOne("Before.Data.Models.Color", "Color")
                         .WithMany()

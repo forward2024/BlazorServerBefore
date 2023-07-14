@@ -1,92 +1,83 @@
-﻿@inject NavigationManager NavigationManager
+﻿@using System.Text;
+@inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
 @inject BlazorService BlazorService
-@inject IImage ImageService
+@inject IJSRuntime JS
 
-<EditForm Model="@product" OnValidSubmit="AddImage">
-    @foreach (var item in BlazorService.ProductImages.Where(v => v.ProductId == Id))
-    {
-    <img src="@item.ImageURL" style="width: 100px" />
-    <button @onclick="@(() => DeleteImage(item.Id))">Delete</button>
-    <button @onclick="@(() => SwapImages(item.Id))">Do First</button>
-    }
+<div class="form">
+    <div class="image_container">
+        @foreach (var image in CurrentProduct.Images)
+        {
+            <div class="image_item">
+                <img src="@image" />
+                <div class="button_container">
+                    <button @onclick="(() => DeleteImage(image))">Видалити</button>
+                    <button @onclick="(() => SwapImages(image))">На першу позицію</button>
+                </div>
+            </div>
+        }
+    </div>
     <div class="form-group">
         <label for="imageFiles">Image Files:</label>
         <InputFile id="imageFiles" multiple OnChange="@OnImageFilesSelected" />
     </div>
-    }
-    @if (selectedFiles.Count > 0)
+    @if (selectedFiles.Any())
     {
-        <button type="submit">Добавить</button>
+        <button type="submit" @onclick="Changed" class="submit-btn">Добавить</button>
     }
-</EditForm>
-
-
-
+</div>
+@foreach (var file in selectedFiles)
+{
+    <p>@file.Name - @file.Size.ToString() bytes</p>
+}
+<p>@selectedFiles.Count()</p>
+<p>@CurrentProduct.Images.Count()</p>
 
 @code {
-    [Parameter] public int Id { get; set; }
-    private Product product = new();
+    [Parameter] public Product CurrentProduct { get; set; }
 
     private List<IBrowserFile> selectedFiles = new List<IBrowserFile>();
-    private string notificationMessage = string.Empty;
-    private string notificationCssClass = "hidden";
 
 
-    protected override async Task OnInitializedAsync()
+    private async Task Changed()
     {
-        if (Id != 0)
-        {
-            product = BlazorService.GetItemById(Id);
-        }
-    }
-
-    private async Task AddImage()
-    {
-        var content = new MultipartFormDataContent();
-        content.Add(new StringContent(Id.ToString()), "Id");
-
         foreach (var file in selectedFiles)
         {
-            var fileName = file.Name;
+            var imageBuilder = new StringBuilder();
+            imageBuilder.Append($"data:{file.ContentType};base64,");
+
             using (var stream = file.OpenReadStream())
             {
                 var memoryStream = new MemoryStream();
                 await stream.CopyToAsync(memoryStream);
-                var fileBytes = memoryStream.ToArray();
-
-                var fileContent = new ByteArrayContent(fileBytes);
-                content.Add(fileContent, "files", fileName);
+                var base64Str = Convert.ToBase64String(memoryStream.ToArray());
+                imageBuilder.Append(base64Str);
             }
+            CurrentProduct.Images.Add(imageBuilder.ToString());
         }
-
-        var response = await HttpClient.PostAsync($"{NavigationManager.BaseUri}api/Image", content);
-
-        if (response.IsSuccessStatusCode)
-        {
-            notificationMessage = "Фотографии успешно загружены!";
-            notificationCssClass = "notification-success";
-            selectedFiles.Clear();
-        }
-        else
-        {
-            notificationMessage = "Произошла ошибка при загрузке фотографий.";
-            notificationCssClass = "notification-error";
-        }
+        selectedFiles.Clear();
     }
+
+
 
     private async Task OnImageFilesSelected(InputFileChangeEventArgs e)
     {
-        selectedFiles.AddRange(e.GetMultipleFiles());
-    }
-    private async Task DeleteImage(int Id)
-    {
-        await ImageService.DeleteImage(Id);
+        selectedFiles.Clear();
+        selectedFiles.AddRange(e.GetMultipleFiles(20));
+        StateHasChanged();
     }
 
-    private async Task SwapImages(int Id)
+
+    private async Task DeleteImage(string image)
     {
-        var firstId = BlazorService.ProductImages.FirstOrDefault(v => v.ProductId == product.Id).Id;
-        await ImageService.SwapProductImagesAsync(firstId, Id);
+        CurrentProduct.Images.Remove(image);
+    }
+
+    private async Task SwapImages(string image)
+    {
+        if (CurrentProduct.Images.Remove(image))
+        {
+            CurrentProduct.Images.Insert(0, image);
+        }
     }
 }

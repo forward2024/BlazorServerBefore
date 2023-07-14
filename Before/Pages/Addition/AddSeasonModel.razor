@@ -7,7 +7,7 @@
             <EditForm Model="@ModelSeason" OnValidSubmit="@OnSubmit">
                 <div>
                     <label>Season: </label>
-                    <InputSelect @bind-Value="@ModelSeason.SeasonId">
+                    <InputSelect @bind-Value="@ModelSeason.Id">
                         @foreach (var season in BlazorService.Seasons)
                         {
                             <option value="@season.Id">@season.Name</option>
@@ -15,33 +15,34 @@
                     </InputSelect>
                 </div>
                 <button type="submit">Add</button>
-                <button type="button" @onclick="Hide">Close</button>
+                <button type="reset" @onclick="Hide">Close</button>
             </EditForm>
         </div>
     </div>
 </div>
 
 @code {
-    private SeasonModel ModelSeason = new();
+    private Season ModelSeason = new();
     private bool IsVisible { get; set; } = false;
 
-    [Parameter] public EventCallback<SeasonModel> OnSeasonProduct { get; set; }
+    [Parameter] public EventCallback<string> OnSeason { get; set; }
 
     private async Task OnSubmit()
     {
-        await OnSeasonProduct.InvokeAsync(ModelSeason);
-        ModelSeason = new SeasonModel();
+        var selectedSeasons = BlazorService.Seasons.Find(s => s.Id == ModelSeason.Id);
+        await OnSeason.InvokeAsync(selectedSeasons.Name);
         ToggleModal();
     }
 
     public void ToggleModal()
     {
+        ModelSeason = new();
         IsVisible = !IsVisible;
         StateHasChanged();
     }
     public void Hide()
     {
-        IsVisible = false;
+        IsVisible = !IsVisible;
         StateHasChanged();
     }
 }

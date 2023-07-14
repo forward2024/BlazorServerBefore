@@ -1,162 +1,195 @@
 ﻿@page "/editproduct/{Id:int}"
 @inject BlazorService BlazorService
 @inject NavigationManager NavigationManager
-@inject HttpClient ServerHttpClient
 @inject IProduct ProductService
 
-<h3>Редактировать товар</h3>
+<h3 class="page-title">Редагувати товар</h3>
 
-<EditForm Model="@product" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="grid-container">
+    <div class="form-section">
+        <h4 class="form-section-title">Основні дані</h4>
 
-    <div class="form-group">
-        <label for="name">Название:</label>
-        <InputText id="name" @bind-Value="product.Name" class="input-control" />
-    </div>
+        <EditForm Model="@product" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-    <div class="form-group">
-        <label for="description">Описание:</label>
-        <InputTextArea id="description" @bind-Value="product.Description" class="input-control" />
-    </div>
+            <div class="form-group">
+                <label for="name">Назва:</label>
+                <InputText id="name" @bind-Value="product.Name" class="form-control" />
+            </div>
 
-    <div class="form-group">
-        <label for="price">Цена:</label>
-        <InputNumber id="price" @bind-Value="product.Price" class="input-number" />
-    </div>
+            <div class="form-group">
+                <label for="description">Опис:</label>
+                <InputTextArea id="description" @bind-Value="product.Description" class="form-control" />
+            </div>
 
-    <div class="form-group">
-        <label for="action">Акция:</label>
-        <InputNumber id="action" @bind-Value="product.Action" class="input-number" />
-    </div>
+            <div class="form-group">
+                <label for="price">Ціна:</label>
+                <InputNumber id="price" @bind-Value="product.Price" class="form-control" />
+            </div>
 
-    <div class="form-group">
-        <label for="IMG">IMG:</label>
-        <ImageManagement Id="product.Id" />
-    </div>
+            <div class="form-group">
+                <label for="action">Акція:</label>
+                <InputNumber id="action" @bind-Value="product.Action" class="form-control" />
+            </div>
 
-    <div class="form-group">
-        <label for="categoryId">Категория:</label>
-        <InputSelect id="categoryId" @bind-Value="product.CategoryId" class="input-select" @key="BlazorService.Categories">
-            @foreach (var category in BlazorService.Categories)
+            <div class="form-group">
+                <label for="categoryId">Категорія:</label>
+                <InputSelect id="categoryId" @bind-Value="product.CategoryId" class="form-control" @key="BlazorService.Categories">
+                    @foreach (var category in BlazorService.Categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group">
+                <label for="sellerId">Продавець:</label>
+                <InputSelect id="sellerId" @bind-Value="product.SellerId" class="form-control" @key="BlazorService.Sellers">
+                    @foreach (var seller in BlazorService.Sellers)
+                    {
+                        <option value="@seller.Id">@seller.Name</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group">
+                <label for="typeItemId">Тип товару:</label>
+                <InputSelect id="typeItemId" @bind-Value="product.TypeItemId" class="form-control" @key="BlazorService.TypeItems">
+                    @foreach (var typeItem in BlazorService.TypeItems)
+                    {
+                        <option value="@typeItem.Id">@typeItem.Name</option>
+                    }
+                </InputSelect>
+            </div>
+
+            @if (product.Seasons.Any())
             {
-                <option value="@category.Id">@category.Name</option>
+                <div class="form-group">
+                    <label>Сезони</label>
+                    <ul>
+                        @foreach (var season in product.Seasons)
+                        {
+                            <li>
+                                @season
+                                <button type="button" class="btn btn-danger" @onclick="() => RemoveSeason(season)">Видалити</button>
+                            </li>
+                        }
+                    </ul>
+                </div>
             }
-        </InputSelect>
-    </div>
 
-    <div class="form-group">
-        <label for="sellerId">Продавец:</label>
-        <InputSelect id="sellerId" @bind-Value="product.SellerId" class="input-select" @key="BlazorService.Sellers">
-            @foreach (var seller in BlazorService.Sellers)
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" @onclick="ShowSeasonModal">Додати сезон</button>
+                <AddSeasonModel @ref="addSeasonModel" OnSeason="@OnSeasonAddedHandler" />
+            </div>
+
+            @if (product.Sizes.Any())
             {
-                <option value="@seller.Id">@seller.Name</option>
+                <div class="form-group">
+                    <label>Розміри:</label>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Розмір</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var size in product.Sizes)
+                            {
+                                <tr>
+                                    <td>@size</td>
+                                    <td><button type="button" class="btn btn-danger" @onclick="() => RemoveSize(size)">Видалити</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
-        </InputSelect>
-    </div>
 
-    <div class="form-group">
-        <label for="typeItemId">Тип товара:</label>
-        <InputSelect id="typeItemId" @bind-Value="product.TypeItemId" class="input-select" @key="BlazorService.TypeItems">
-            @foreach (var typeItem in BlazorService.TypeItems)
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" @onclick="ShowSizeModal">Додати розмір</button>
+                <AddSizeModel @ref="addSizeModel" OnSize="@OnSizeAddedHandler" />
+            </div>
+
+            @if (showMessage)
             {
-                <option value="@typeItem.Id">@typeItem.Name</option>
+                <div class="alert alert-info" role="alert">
+                    @message
+                </div>
             }
-        </InputSelect>
+            <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+        </EditForm>
     </div>
 
-    <div class="form-group">
-        <label>Сезон</label>
-        <ul>
-            @foreach (var season in originalProduct.Seasons)
-            {
-                <li>
-                    @season.Season.Name
-                    <button type="button" class="btn btn-danger" @onclick="() => RemoveSeason(season)">Удалить</button>
-                </li>
-            }
-        </ul>
+    <div class="image-management-section">
+        <h4 class="form-section-title">Керування зображеннями</h4>
+        <ImageManagement CurrentProduct="product" />
     </div>
-
-    <div class="form-group">
-        <label>Размеры:</label>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Размер</th>
-                    <th>Цвет</th>
-                    <th>Количество</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var size in originalProduct.Sizes)
-                {
-                    <tr>
-                        <td>@size.Size.Name</td>
-                        <td>
-                            <div class="color-sample" style="background-color: @size.Color.Name"></div>
-                            <span>@size.Color.Name</span>
-                        </td>
-                        <td>@size.Count</td>
-                        <td><button type="button" class="btn btn-danger" @onclick="() => RemoveSize(size)">Удалить</button></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-
-
-    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-</EditForm>
+</div>
 
 @code {
     [Parameter] public int Id { get; set; }
-    private Product product;
-    private Product originalProduct;
+    Product product = new();
+    private AddSizeModel addSizeModel;
+    private AddSeasonModel addSeasonModel;
+    string? message;
+    bool showMessage = false;
 
     protected override async Task OnInitializedAsync()
     {
-        originalProduct = BlazorService.GetItemById(Id);
-        product = new Product
-            {
-                Id = originalProduct.Id,
-                Name = originalProduct.Name,
-                Description = originalProduct.Description,
-                Price = originalProduct.Price,
-                Action = originalProduct.Action,
-                CategoryId = originalProduct.CategoryId,
-                SellerId = originalProduct.SellerId,
-                TypeItemId = originalProduct.TypeItemId,
-                Category = originalProduct.Category,
-                Seller = originalProduct.Seller,
-                TypeItem = originalProduct.TypeItem,
-                Seasons = originalProduct.Seasons,
-                Sizes = originalProduct.Sizes
-            };
+        product = await ProductService.GetProductByIdAsync(Id);
+    }
+
+
+    private void ShowSizeModal()
+    {
+        addSizeModel.ToggleModal();
+    }
+    private void ShowSeasonModal()
+    {
+        addSeasonModel.ToggleModal();
+    }
+
+
+    private async Task OnSizeAddedHandler(string size)
+    {
+        product.Sizes.Add(size);
+    }
+    private async Task OnSeasonAddedHandler(string season)
+    {
+        product.Seasons.Add(season);
+    }
+
+
+    private void RemoveSeason(string season)
+    {
+        product.Seasons.Remove(season);
+    }
+    private void RemoveSize(string size)
+    {
+        product.Sizes.Remove(size);
     }
 
     private async Task HandleValidSubmit()
     {
-        product.Category = BlazorService.Categories.FirstOrDefault(c => c.Id == product.CategoryId);
-        product.Seller = BlazorService.Sellers.FirstOrDefault(s => s.Id == product.SellerId);
-        product.TypeItem = BlazorService.TypeItems.FirstOrDefault(t => t.Id == product.TypeItemId);
+        if (await ProductService.UpdateProductAsync(product))
+        {
+            NavigationManager.NavigateTo("/ControlPanel");
+        }
+        else
+        {
+            message = "Змін не має";
+            showMessage = !showMessage;
+            StateHasChanged();
 
+            await Task.Delay(2000);
 
-        await ProductService.UpdateProductAsync(product);
-        BlazorService.Changer();
-        NavigationManager.NavigateTo("/ControlPanel");
-    }
+            showMessage = !showMessage;
+            StateHasChanged();
 
-    private async Task RemoveSize(SizeModel size)
-    {
-        product.Sizes.Remove(size);
-        await ProductService.UpdateProductAsync(originalProduct);
+        }
     }
-    private async Task RemoveSeason(SeasonModel season)
-    {
-        product.Seasons.Remove(season);
-        await ProductService.UpdateProductAsync(originalProduct);
-    }
-    
 }
+
