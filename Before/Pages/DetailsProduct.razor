@@ -3,11 +3,68 @@
 
 <div class="item_details">
     <ImageSlider Images="product.Images" />
-    <div>
-        <h3>@product.Name</h3>
-        <p>@product.Category.Name</p>
-        <p>@product.Price.ToString() UAH</p>
-        <button class="btn btn-primary">Добавить в корзину</button>
+    <div class="product_info">
+        <div class="header" style="background-image: url('@product.Images[0]');">
+
+        </div>
+        <div class="body">
+            <div class="title_price">
+                <h3 class="product-title">@product.Name</h3>
+                <p class="product-price">@product.Price.ToString() UAH</p>
+            </div>
+            <div class="buttons">
+                <button class="add_cart">Добавить в корзину</button>
+                <button class="add_favorites">В улюблене</button>
+            </div>
+            <div class="product-desc card">
+                <h4>Description</h4>
+                <p>@product.Description</p>
+            </div>
+            <div class="card">
+                <div class="row">
+                    <div class="product-cat half-card">
+                        <h4>Category</h4>
+                        <p>@product.Category.Name</p>
+                    </div>
+                    <div class="product-type half-card">
+                        <h4>Type</h4>
+                        <p>@product.TypeItem.Name</p>
+                    </div>
+                </div>
+            </div>
+            @if (product.Seasons.Any())
+            {
+                <div class="collection_seasons card">
+                    <h4>Seasons:</h4>
+                    @foreach (var item in product.Seasons)
+                    {
+                        <p class="season">@item</p>
+                    }
+                </div>
+            }
+
+            @if (product.Colors.Any())
+            {
+                <div class="collection_colors card">
+                    <h4>Colors:</h4>
+                    @foreach (var color in product.Colors)
+                    {
+                        <div class="color-swatch" style="background-color: @color;"></div>
+                    }
+                </div>
+            }
+
+            @if (product.Sizes.Any())
+            {
+                <div class="collection_sizes card">
+                    <h4>Sizes:</h4>
+                    @foreach (var item in product.Sizes)
+                    {
+                        <p class="size">@item</p>
+                    }
+                </div>
+            }
+        </div>
     </div>
 </div>
 

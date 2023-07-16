@@ -1,0 +1,60 @@
+﻿<div class="@("modal " + (IsVisible ? "show" : "hide"))" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Label</h5>
+                <button type="button" class="close" @onclick="HandleCancel" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <select class="form-control" @bind="selectedOption">
+                    <option value=""></option>
+                    @foreach (var option in OptionsList)
+                    {
+                        if (DisplayType == "text")
+                        {
+                            <option value="@option">@option</option>
+                        }
+                        else if (DisplayType == "color")
+                        {
+                            <option value="@option" style="background-color: @option">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="HandleOptionAdded">Add</button>
+                <button type="button" class="btn btn-secondary" @onclick="HandleCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; } = false;
+    [Parameter] public string Label { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public EventCallback<string> OnOptionAdded { get; set; }
+    [Parameter] public List<string> OptionsList { get; set; } = new List<string>();
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public string DisplayType { get; set; }
+
+    private string selectedOption;
+
+    private async Task HandleCancel()
+    {
+        await OnCancel.InvokeAsync();
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task HandleOptionAdded()
+    {
+        await OnOptionAdded.InvokeAsync(selectedOption);
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+}

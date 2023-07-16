@@ -1,13 +1,19 @@
 ﻿@inject BlazorService BlazorService
 
 <div class="image-slider">
-    <button class="slider-button left" @onclick="PreviousImage" disabled="@isAnimating">&#10094;</button>
-    @foreach (var (item, index) in Images.Select((value, index) => (value, index)))
-    {
-        <img src="@item" class="slider-image @(index == currentImageIndex ? "active" : (index == GetPreviousIndex() ? "previous" : (index == GetNextIndex() ? "next" : "hidden")))" />
-    }
-    <button class="slider-button right" @onclick="NextImage" disabled="@isAnimating">&#10095;</button>
+    <div class="image-frame">
+        <div class="image-container">
+            @foreach (var (item, index) in Images.Select((value, index) => (value, index)))
+            {
+                <img src="@item" class="slider-image @(index == currentImageIndex ? "active" : (index == GetPreviousIndex() ? "previous" : (index == GetNextIndex() ? "next" : "hidden")))" />
+            }
+        </div>
+        <button class="slider-button left" @onclick="PreviousImage" disabled="@isAnimating">&#10094;</button>
+        <button class="slider-button right" @onclick="NextImage" disabled="@isAnimating">&#10095;</button>
+    </div>
 </div>
+
+
 
 @code {
     [Parameter] public List<string> Images { get; set; }

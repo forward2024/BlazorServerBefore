@@ -48,6 +48,7 @@ namespace Before.Service.ProductService
 
                 product.Seasons = new HashSet<string>(relatedMongoProduct.Seasons);
                 product.Sizes = new HashSet<string>(relatedMongoProduct.Sizes);
+                product.Colors = new HashSet<string>(relatedMongoProduct.Colors);
             }
 
             return sqlProducts;
@@ -79,6 +80,7 @@ namespace Before.Service.ProductService
             product.Images = convertedImages;
             product.Seasons = new HashSet<string>(mongoProduct.Seasons);
             product.Sizes = new HashSet<string>(mongoProduct.Sizes);
+            product.Colors = new HashSet<string>(mongoProduct.Colors);
 
             return product;
         }
@@ -93,7 +95,8 @@ namespace Before.Service.ProductService
                 Id = product.Id,
                 Images = ConvertBase64ToBytes(product.Images),
                 Seasons = product.Seasons,
-                Sizes = product.Sizes
+                Sizes = product.Sizes,
+                Colors = product.Colors
             };
 
             await mongoContext.MongoDBProducts.InsertOneAsync(mongoDBProduct);
@@ -144,7 +147,8 @@ namespace Before.Service.ProductService
             {
                 Images = ConvertImagesToBase64(originalMongoProduct.Images),
                 Seasons = new HashSet<string>(originalMongoProduct.Seasons),
-                Sizes = new HashSet<string>(originalMongoProduct.Sizes)
+                Sizes = new HashSet<string>(originalMongoProduct.Sizes),
+                Colors = new HashSet<string>(originalMongoProduct.Colors)
             };
             if (product.HasChanges(originalProduct))
             {
@@ -153,7 +157,8 @@ namespace Before.Service.ProductService
                     Id = product.Id,
                     Images = ConvertBase64ToBytes(product.Images),
                     Seasons = product.Seasons,
-                    Sizes = product.Sizes
+                    Sizes = product.Sizes,
+                    Colors = product.Colors
                 };
                 var filter = Builders<MongoDBProduct>.Filter.Eq("_id", product.Id);
                 await mongoContext.MongoDBProducts.ReplaceOneAsync(filter, mongoProduct);

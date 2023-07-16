@@ -72,16 +72,14 @@
                         {
                             <li>
                                 @season
-                                <button type="button" class="btn btn-danger" @onclick="() => RemoveSeason(season)">Видалити</button>
+                                <button type="button" @onclick="() => RemoveSeason(season)">Видалити</button>
                             </li>
                         }
                     </ul>
                 </div>
             }
-
             <div class="form-group">
-                <button type="button" class="btn btn-primary" @onclick="ShowSeasonModal">Додати сезон</button>
-                <AddSeasonModel @ref="addSeasonModel" OnSeason="@OnSeasonAddedHandler" />
+                <button type="button" @onclick="OpenAddSeason">Add Season</button>
             </div>
 
             @if (product.Sizes.Any())
@@ -100,7 +98,34 @@
                             {
                                 <tr>
                                     <td>@size</td>
-                                    <td><button type="button" class="btn btn-danger" @onclick="() => RemoveSize(size)">Видалити</button></td>
+                                    <td><button type="button" @onclick="() => RemoveSize(size)">Видалити</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            }
+            <div class="form-group">
+                <button type="button" @onclick="OpenAddSize">Add Size</button>
+            </div>
+
+            @if (product.Colors.Any())
+            {
+                <div class="form-group">
+                    <label>Кольори:</label>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var color in product.Colors)
+                            {
+                                <tr>
+                                    <td style="background-color: @color; width: 100px; height: 30px;"></td>
+                                    <td><button type="button" @onclick="() => RemoveSize(color)">Видалити</button></td>
                                 </tr>
                             }
                         </tbody>
@@ -109,9 +134,10 @@
             }
 
             <div class="form-group">
-                <button type="button" class="btn btn-primary" @onclick="ShowSizeModal">Додати розмір</button>
-                <AddSizeModel @ref="addSizeModel" OnSize="@OnSizeAddedHandler" />
+                <button type="button" @onclick="OpenAddColor">Add Color</button>
             </div>
+            <AddModelPanel Label="@Label" IsVisible="@IsVisible" IsVisibleChanged="HandleIsVisibleChanged" OptionsList="@OptionsList"
+                           OnOptionAdded="@OnOptionAdded" OnCancel="@Hide" DisplayType="@Type" />
 
             @if (showMessage)
             {
@@ -132,8 +158,6 @@
 @code {
     [Parameter] public int Id { get; set; }
     Product product = new();
-    private AddSizeModel addSizeModel;
-    private AddSeasonModel addSeasonModel;
     string? message;
     bool showMessage = false;
 
@@ -143,34 +167,36 @@
     }
 
 
-    private void ShowSizeModal()
+    private bool IsVisible { get; set; } = false;
+    private string Label{ get; set; }
+    private string Type { get; set; }
+    private List<string> OptionsList { get; set; } = new List<string>();
+    private Action<string> OnOptionAdded { get; set; }
+
+    public void ShowModal(string label, List<string> optionsList, Action<string> onOptionAdded, string type = "text")
     {
-        addSizeModel.ToggleModal();
-    }
-    private void ShowSeasonModal()
-    {
-        addSeasonModel.ToggleModal();
+        Label = label;
+        OptionsList = optionsList ?? new List<string>();
+        OnOptionAdded = onOptionAdded;
+        IsVisible = true;
+        Type = type;
     }
 
+    void OpenAddColor() => ShowModal("Add Color", BlazorService.Colors.Select(c => c.Name).ToList(), AddColor, "color");
+    void OpenAddSize() => ShowModal("Add Size", BlazorService.Sizes.Select(s => s.Name).ToList(), AddSize);
+    void OpenAddSeason() => ShowModal("Add Season", BlazorService.Seasons.Select(s => s.Name).ToList(), AddSeason);
 
-    private async Task OnSizeAddedHandler(string size)
+    private void AddColor(string color) => AddToListInProduct(color, product.Colors);
+    private void AddSize(string size) => AddToListInProduct(size, product.Sizes);
+    private void AddSeason(string season) => AddToListInProduct(season, product.Seasons);
+    private void AddToListInProduct(string item, HashSet<string> list)
     {
-        product.Sizes.Add(size);
-    }
-    private async Task OnSeasonAddedHandler(string season)
-    {
-        product.Seasons.Add(season);
-    }
+        if (!string.IsNullOrWhiteSpace(item))
+            list.Add(item);
+    } 
+    public void Hide() => IsVisible = false;
+    void HandleIsVisibleChanged(bool isVisible) => IsVisible = isVisible;
 
-
-    private void RemoveSeason(string season)
-    {
-        product.Seasons.Remove(season);
-    }
-    private void RemoveSize(string size)
-    {
-        product.Sizes.Remove(size);
-    }
 
     private async Task HandleValidSubmit()
     {
@@ -183,13 +209,14 @@
             message = "Змін не має";
             showMessage = !showMessage;
             StateHasChanged();
-
             await Task.Delay(2000);
-
             showMessage = !showMessage;
             StateHasChanged();
-
         }
     }
+
+    private void RemoveSize(string size) => product.Sizes.Remove(size);
+    private void RemoveColor(string color) => product.Colors.Remove(color);
+    private void RemoveSeason(string season) => product.Seasons.Remove(season);
 }
 

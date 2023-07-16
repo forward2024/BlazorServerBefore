@@ -26,6 +26,8 @@ namespace Before.Data.Models
         public HashSet<string> Seasons { get; set; } = new HashSet<string>();
         [NotMapped]
         public HashSet<string> Sizes { get; set; } = new HashSet<string>();
+        [NotMapped]
+        public HashSet<string> Colors { get; set; } = new HashSet<string>();
 
         public Product() { }
 
@@ -46,11 +48,13 @@ namespace Before.Data.Models
 
             this.Seasons = new HashSet<string>(other.Seasons);
             this.Sizes = new HashSet<string>(other.Sizes);
+            this.Colors = new HashSet<string>(other.Colors);
             this.Images = other.Images?.ToList();
         }
         public bool HasChanges(Product other)
         {
-            if (!this.Sizes.SetEquals(other.Sizes) || !this.Seasons.SetEquals(other.Seasons) || !this.Images.SequenceEqual(other.Images))
+            if (!this.Sizes.SetEquals(other.Sizes) || !this.Seasons.SetEquals(other.Seasons) ||
+                !this.Images.SequenceEqual(other.Images) || !this.Images.SequenceEqual(other.Colors))
                 return true;
             return false;
         }
