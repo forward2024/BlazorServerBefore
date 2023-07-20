@@ -29,8 +29,8 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 var dbSettingsSection = builder.Configuration.GetSection("MongoDb");
 var dbSettings = dbSettingsSection.Get<MongoDBSettings>();
 
-builder.Services.AddSingleton<IMongoDBSettings>(dbSettings);
 
+builder.Services.AddSingleton<IMongoDBSettings>(dbSettings);
 builder.Services.AddScoped(sp => new MongoDbContext(sp.GetRequiredService<IMongoDBSettings>()));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
