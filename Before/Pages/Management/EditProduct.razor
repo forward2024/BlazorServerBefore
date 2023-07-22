@@ -125,7 +125,7 @@
                             {
                                 <tr>
                                     <td style="background-color: @color; width: 100px; height: 30px;"></td>
-                                    <td><button type="button" @onclick="() => RemoveSize(color)">Видалити</button></td>
+                                    <td><button type="button" @onclick="() => RemoveColor(color)">Видалити</button></td>
                                 </tr>
                             }
                         </tbody>
@@ -215,8 +215,15 @@
         }
     }
 
-    private void RemoveSize(string size) => product.Sizes.Remove(size);
-    private void RemoveColor(string color) => product.Colors.Remove(color);
-    private void RemoveSeason(string season) => product.Seasons.Remove(season);
+
+    private void RemoveSize(string size) => RemoveAndRefresh(product.Sizes, size);
+    private void RemoveColor(string color) => RemoveAndRefresh(product.Colors, color);
+    private void RemoveSeason(string season) => RemoveAndRefresh(product.Seasons, season);
+
+    private void RemoveAndRefresh<T>(ICollection<T> collection, T item)
+    {
+        collection.Remove(item);
+        StateHasChanged();
+    }
 }
 

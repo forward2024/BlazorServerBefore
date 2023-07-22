@@ -2,6 +2,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
 @inject BlazorService BlazorService
+@inject IProduct ProductService
 @inject IJSRuntime JS
 
 <div class="form">
@@ -30,8 +31,6 @@
 {
     <p>@file.Name - @file.Size.ToString() bytes</p>
 }
-<p>@selectedFiles.Count()</p>
-<p>@CurrentProduct.Images.Count()</p>
 
 @code {
     [Parameter] public Product CurrentProduct { get; set; }
@@ -78,6 +77,8 @@
         if (CurrentProduct.Images.Remove(image))
         {
             CurrentProduct.Images.Insert(0, image);
+            await ProductService.SwapImagesInMongoDB(CurrentProduct.Id, image);
         }
+        StateHasChanged();
     }
 }

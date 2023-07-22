@@ -1,4 +1,5 @@
 ﻿using Before.Data;
+using Before.Data.Models;
 using Before.Service.ServiceBlazor;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ namespace Before.Service.ServiceAddition.ServiceSize
         {
             using (var contextUsing = new ApplicationDbContext(context))
             {
-                blazorService.Sizes = await contextUsing.Sizes.ToListAsync();
+                blazorService.Sizes = new HashSet<Size>(await contextUsing.Sizes.ToListAsync());
             }
         }
     }

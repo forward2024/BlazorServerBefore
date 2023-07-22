@@ -8,13 +8,13 @@ global using Before.Service.ServiceAddition.ServiceSize;
 global using Before.Service.ServiceAddition.ServiceTypeItem;
 global using Before.Service.ServiceBlazor;
 global using Before.Service.ServiceFillter;
+global using Microsoft.EntityFrameworkCore;
 using Before.Areas.Identity;
 using Before.Data;
 using Before.Data.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +52,30 @@ builder.Services.AddTransient<CircuitHandler, ActiveUserCircuitHandler>();
 
 
 var app = builder.Build();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await RoleInitializer.InitializeAsync(userManager, roleManager);
+
+    var typeItemService = scope.ServiceProvider.GetRequiredService<ITypeItem>();
+    var productService = scope.ServiceProvider.GetRequiredService<IProduct>();
+    var categoryService = scope.ServiceProvider.GetRequiredService<ICategory>();
+    var sellerService = scope.ServiceProvider.GetRequiredService<ISeller>();
+    var typeColorService = scope.ServiceProvider.GetRequiredService<IColor>();
+    var typeSizeService = scope.ServiceProvider.GetRequiredService<ISize>();
+    var typeSeasonService = scope.ServiceProvider.GetRequiredService<ISeason>();
+    await typeItemService.GetAllAsync();
+    await productService.GetAllAsync();
+    await categoryService.GetAllAsync();
+    await sellerService.GetAllAsync();
+    await typeColorService.GetAllAsync();
+    await typeSizeService.GetAllAsync();
+    await typeSeasonService.GetAllAsync();
+    scope.ServiceProvider.GetRequiredService<BlazorService>();
+}
 
 
 if (app.Environment.IsDevelopment())

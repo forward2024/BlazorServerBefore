@@ -3,6 +3,7 @@
 @inject HttpClient HttpClient
 @inject IProduct ProductService
 @inject ICategory CategoryService
+@inject IJSRuntime JsRuntime
 @page "/addProduct"
 
 
@@ -71,30 +72,90 @@
         </InputSelect>
     </div>
 
+    @if (product.Seasons.Any())
+    {
+        <div class="form-group">
+            <label>Сезони</label>
+            <ul>
+                @foreach (var season in product.Seasons)
+                {
+                    <li>
+                        @season
+                        <button type="button" @onclick="() => RemoveSeason(season)">Видалити</button>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
     <div class="form-group">
-        <button type="button" class="btn btn-primary" @onclick="ShowSizeModal">Add Size</button>
-        @*<AddSizeModel @ref="addSizeModel" OnSize="@OnSizeAddedHandler" />*@
+        <button type="button" @onclick="OpenAddSeason">Add Season</button>
     </div>
 
+    @if (product.Sizes.Any())
+    {
+        <div class="form-group">
+            <label>Розміри:</label>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Розмір</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var size in product.Sizes)
+                    {
+                        <tr>
+                            <td>@size</td>
+                            <td><button type="button" @onclick="() => RemoveSize(size)">Видалити</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    }
     <div class="form-group">
-        <button type="button" class="btn btn-primary" @onclick="ShowSeasonModal">Add Season</button>
-        @*<AddSeasonModel @ref="addSeasonModel" OnSeason="@OnSeasonAddedHandler" />*@
+        <button type="button" @onclick="OpenAddSize">Add Size</button>
     </div>
 
+    @if (product.Colors.Any())
+    {
+        <div class="form-group">
+            <label>Кольори:</label>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var color in product.Colors)
+                    {
+                        <tr>
+                            <td style="background-color: @color; width: 100px; height: 30px;"></td>
+                            <td><button type="button" @onclick="() => RemoveSize(color)">Видалити</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <div class="form-group">
+        <button type="button" @onclick="OpenAddColor">Add Color</button>
+    </div>
 
-    <button type="submit" class="btn btn-primary">Add Product</button>
+    <AddModelPanel Label="@Label" IsVisible="@IsVisible" IsVisibleChanged="HandleIsVisibleChanged" OptionsList="@OptionsList"
+                   OnOptionAdded="@OnOptionAdded" OnCancel="@Hide" DisplayType="@Type" />
+
+
+    <button type="submit" class="btn btn-primary" disabled="@(selectedFiles.Count > 10)">Add Product</button>
 </EditForm>
 
 @code {
     private Product product = new();
     private List<IBrowserFile> selectedFiles = new List<IBrowserFile>();
-    //private AddSizeModel addSizeModel;
-    //private AddSeasonModel addSeasonModel;
 
-    protected override async Task OnInitializedAsync()
-    {
-
-    }
 
     private async Task AddProductAsync()
     {
@@ -117,35 +178,69 @@
         NavigationManager.NavigateTo("/ControlPanel");
     }
 
-    #region Image
     private async Task OnImageFilesSelected(InputFileChangeEventArgs e)
     {
-        selectedFiles.AddRange(e.GetMultipleFiles());
+        try
+        {
+            var files = e.GetMultipleFiles().ToList();
+            if (files.Count > 10)
+            {
+                await JsRuntime.InvokeVoidAsync("alert", "Максимальна кількість файлів - 10");
+            }
+            else
+            {
+                selectedFiles.AddRange(files);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", "Ви вибрали забагато файлів. Максимальна кількість - 10.");
+            selectedFiles.Clear();
+        }
+        StateHasChanged();
     }
+
+
+
     private async Task ClearImage()
     {
         selectedFiles.Clear();
         StateHasChanged();
     }
-    #endregion
 
 
-    private async Task OnSizeAddedHandler(string size)
+
+    private bool IsVisible { get; set; } = false;
+    private string Label { get; set; }
+    private string Type { get; set; }
+    private List<string> OptionsList { get; set; } = new List<string>();
+    private Action<string> OnOptionAdded { get; set; }
+
+    public void ShowModal(string label, List<string> optionsList, Action<string> onOptionAdded, string type = "text")
     {
-        product.Sizes.Add(size);
+        Label = label;
+        OptionsList = optionsList ?? new List<string>();
+        OnOptionAdded = onOptionAdded;
+        IsVisible = true;
+        Type = type;
     }
 
-    private async Task OnSeasonAddedHandler(string season)
-    {
-        product.Seasons.Add(season);
-    }
+    void OpenAddColor() => ShowModal("Add Color", BlazorService.Colors.Select(c => c.Name).ToList(), AddColor, "color");
+    void OpenAddSize() => ShowModal("Add Size", BlazorService.Sizes.Select(s => s.Name).ToList(), AddSize);
+    void OpenAddSeason() => ShowModal("Add Season", BlazorService.Seasons.Select(s => s.Name).ToList(), AddSeason);
 
-    private void ShowSizeModal()
+    private void AddColor(string color) => AddToListInProduct(color, product.Colors);
+    private void AddSize(string size) => AddToListInProduct(size, product.Sizes);
+    private void AddSeason(string season) => AddToListInProduct(season, product.Seasons);
+    private void AddToListInProduct(string item, HashSet<string> list)
     {
-        //addSizeModel.ToggleModal();
+        if (!string.IsNullOrWhiteSpace(item))
+            list.Add(item);
     }
-    private void ShowSeasonModal()
-    {
-        //addSeasonModel.ToggleModal();
-    }
+    public void Hide() => IsVisible = false;
+    void HandleIsVisibleChanged(bool isVisible) => IsVisible = isVisible;
+
+    private void RemoveSize(string size) => product.Sizes.Remove(size);
+    private void RemoveColor(string color) => product.Colors.Remove(color);
+    private void RemoveSeason(string season) => product.Seasons.Remove(season);
 }

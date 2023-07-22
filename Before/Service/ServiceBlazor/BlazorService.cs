@@ -9,14 +9,13 @@ namespace Before.Service.ServiceBlazor
         {
             ProductAdded?.Invoke();
         }
-        public List<TypeItem> TypeItems { get; set; } = new List<TypeItem>();
+        public HashSet<TypeItem> TypeItems { get; set; } = new HashSet<TypeItem>();
         public List<Product> Products { get; set; } = new List<Product>();
-        public List<string> ProductImages { get; set; } = new List<string>();
-        public List<Category> Categories { get; set; } = new List<Category>();
-        public List<Seller> Sellers { get; set; } = new List<Seller>();
-        public List<Season> Seasons { get; set; } = new List<Season>();
-        public List<Color> Colors { get; set; } = new List<Color>();
-        public List<Size> Sizes { get; set; } = new List<Size>();
+        public HashSet<Category> Categories { get; set; } = new HashSet<Category>();
+        public HashSet<Seller> Sellers { get; set; } = new HashSet<Seller>();
+        public HashSet<Season> Seasons { get; set; } = new HashSet<Season>();
+        public HashSet<Color> Colors { get; set; } = new HashSet<Color>();
+        public HashSet<Size> Sizes { get; set; } = new HashSet<Size>();
         
 
 

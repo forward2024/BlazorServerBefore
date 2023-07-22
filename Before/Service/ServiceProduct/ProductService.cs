@@ -1,14 +1,7 @@
 ﻿using Before.Data;
 using Before.Data.Models;
-using Before.Service.ServiceBlazor;
-using Before.Service.ServiceProduct;
 using Microsoft.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
 using MongoDB.Driver;
-using System.Diagnostics;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Before.Service.ProductService
 {
@@ -54,17 +47,6 @@ namespace Before.Service.ProductService
             return sqlProducts;
         }
 
-        private List<string> ConvertImagesToBase64(List<byte[]> imageBytes)
-        {
-            List<string> result = new();
-            foreach (var item in imageBytes)
-            {
-                var base64ImageRepresentation = Convert.ToBase64String(item);
-                result.Add($"data:image/jpeg;base64,{base64ImageRepresentation}");
-            }
-            return result;
-        }
-
 
         public async Task<Product> GetProductByIdAsync(int id)
         {
@@ -84,6 +66,7 @@ namespace Before.Service.ProductService
 
             return product;
         }
+
 
         public async Task AddProductAsync(Product product)
         {
@@ -110,16 +93,6 @@ namespace Before.Service.ProductService
             blazorService.Changer();
         }
 
-        private List<byte[]> ConvertBase64ToBytes(List<string> base64Images)
-        {
-            List<byte[]> result = new();
-            foreach (var base64Image in base64Images)
-            {
-                var imageBytes = Convert.FromBase64String(base64Image.Split(",")[1]);
-                result.Add(imageBytes);
-            }
-            return result;
-        }
 
         public async Task<bool> UpdateProductAsync(Product product)
         {
@@ -172,20 +145,52 @@ namespace Before.Service.ProductService
             }
             return result;
         }
-        private async Task SendImageToServer(Product product, string base64Image)
+        private List<byte[]> ConvertBase64ToBytes(List<string> base64Images)
         {
-            byte[] imageBytes = Convert.FromBase64String(base64Image);
-
-            var mongoProduct = new MongoDBProduct
+            List<byte[]> result = new();
+            foreach (var base64Image in base64Images)
             {
-                Id = product.Id,
-                Images = new List<byte[]> { imageBytes },
-            };
-
-            // Replace the existing MongoDBProduct with the new one
-            var filter = Builders<MongoDBProduct>.Filter.Eq("_id", product.Id);
-            await mongoContext.MongoDBProducts.ReplaceOneAsync(filter, mongoProduct);
+                var imageBytes = Convert.FromBase64String(base64Image.Split(",")[1]);
+                result.Add(imageBytes);
+            }
+            return result;
         }
+        private List<string> ConvertImagesToBase64(List<byte[]> imageBytes)
+        {
+            List<string> result = new();
+            foreach (var item in imageBytes)
+            {
+                var base64ImageRepresentation = Convert.ToBase64String(item);
+                result.Add($"data:image/jpeg;base64,{base64ImageRepresentation}");
+            }
+            return result;
+        }
+
+
+        public async Task SwapImagesInMongoDB(int productId, string image)
+        {
+            var filter = Builders<MongoDBProduct>.Filter.Eq(s => s.Id, productId);
+            var mongoProduct = await mongoContext.MongoDBProducts.Find(filter).FirstOrDefaultAsync();
+
+            string base64Image = image.Substring(image.IndexOf(',') + 1);
+            if (IsBase64String(base64Image))
+            {
+                var imageBytes = Convert.FromBase64String(base64Image);
+
+                if (mongoProduct.Images.Remove(imageBytes))
+                {
+                    mongoProduct.Images.Insert(0, imageBytes);
+                }
+
+                await mongoContext.MongoDBProducts.ReplaceOneAsync(filter, mongoProduct);
+            }
+        }
+        private bool IsBase64String(string base64)
+        {
+            Span<byte> buffer = new Span<byte>(new byte[base64.Length]);
+            return Convert.TryFromBase64String(base64, buffer, out _);
+        }
+
 
         public async Task DeleteProductAsync(int id)
         {

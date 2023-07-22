@@ -1,4 +1,5 @@
 ﻿using Before.Data;
+using Before.Data.Models;
 using Before.Service.ServiceBlazor;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ namespace Before.Service.ServiceAddition.ServiceCategory
         {
             using (var contextUsing = new ApplicationDbContext(context))
             {
-                blazorService.Categories = await contextUsing.Categories.ToListAsync();
+                blazorService.Categories = new HashSet<Category>(await contextUsing.Categories.ToListAsync());
             }
         }
     }

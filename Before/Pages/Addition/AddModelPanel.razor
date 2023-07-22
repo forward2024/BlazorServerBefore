@@ -19,9 +19,7 @@
                         else if (DisplayType == "color")
                         {
                             <option value="@option" style="background-color: @option">
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                             </option>
                         }
                     }
@@ -44,7 +42,13 @@
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public string DisplayType { get; set; }
 
+
     private string selectedOption;
+
+    protected override void OnParametersSet()
+    {
+        selectedOption = string.Empty;
+    }
 
     private async Task HandleCancel()
     {

@@ -1,4 +1,5 @@
 ﻿using Before.Data;
+using Before.Data.Models;
 using Before.Service.ServiceBlazor;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ namespace Before.Service.ServiceAddition.ServiceSeason
         {
             using (var contextUsing = new ApplicationDbContext(context))
             {
-                blazorService.Seasons = await contextUsing.Seasons.ToListAsync();
+                blazorService.Seasons = new HashSet<Season>(await contextUsing.Seasons.ToListAsync());
             }
         }
     }

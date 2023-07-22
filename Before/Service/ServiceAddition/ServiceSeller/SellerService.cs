@@ -1,4 +1,5 @@
 ﻿using Before.Data;
+using Before.Data.Models;
 using Before.Service.ServiceBlazor;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ namespace Before.Service.ServiceAddition.ServiceSeller
         {
             using (var contextUsing = new ApplicationDbContext(context))
             {
-                blazorService.Sellers = await contextUsing.Sellers.ToListAsync();
+                blazorService.Sellers = new HashSet<Seller>(await contextUsing.Sellers.ToListAsync());
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Before.Data;
+using Before.Data.Models;
 using Before.Service.ServiceBlazor;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ namespace Before.Service.ServiceAddition.ServiceTypeItem
         {
             using (var contextUsing = new ApplicationDbContext(context))
             {
-                blazorService.TypeItems = await contextUsing.TypeItems.ToListAsync();
+                blazorService.TypeItems = new HashSet<TypeItem>(await contextUsing.TypeItems.ToListAsync());
             }
         }
     }

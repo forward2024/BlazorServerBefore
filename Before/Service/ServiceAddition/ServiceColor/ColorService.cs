@@ -1,4 +1,5 @@
 ﻿using Before.Data;
+using Before.Data.Models;
 using Before.Service.ServiceBlazor;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ namespace Before.Service.ServiceAddition.ServiceColor
         {
             using (var contextUsing = new ApplicationDbContext(context))
             {
-                blazorService.Colors = await contextUsing.Colors.ToListAsync();
+                blazorService.Colors = new HashSet<Color>(await contextUsing.Colors.ToListAsync());
             }
         }
     }
