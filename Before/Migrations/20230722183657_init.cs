@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Before.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -294,86 +294,6 @@ namespace Before.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "ProductImages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProductId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductImages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductImages_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductSeasons",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    SeasonId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductSeasons", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductSeasons_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductSeasons_Seasons_SeasonId",
-                        column: x => x.SeasonId,
-                        principalTable: "Seasons",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SizeProducts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    SizeId = table.Column<int>(type: "int", nullable: false),
-                    ColorId = table.Column<int>(type: "int", nullable: false),
-                    Count = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SizeProducts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SizeProducts_Colors_ColorId",
-                        column: x => x.ColorId,
-                        principalTable: "Colors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SizeProducts_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SizeProducts_Sizes_SizeId",
-                        column: x => x.SizeId,
-                        principalTable: "Sizes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.InsertData(
                 table: "Categories",
                 columns: new[] { "Id", "Name" },
@@ -503,11 +423,6 @@ namespace Before.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductImages_ProductId",
-                table: "ProductImages",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Products_CategoryId",
                 table: "Products",
                 column: "CategoryId");
@@ -521,31 +436,6 @@ namespace Before.Migrations
                 name: "IX_Products_TypeItemId",
                 table: "Products",
                 column: "TypeItemId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductSeasons_ProductId",
-                table: "ProductSeasons",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductSeasons_SeasonId",
-                table: "ProductSeasons",
-                column: "SeasonId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SizeProducts_ColorId",
-                table: "SizeProducts",
-                column: "ColorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SizeProducts_ProductId",
-                table: "SizeProducts",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SizeProducts_SizeId",
-                table: "SizeProducts",
-                column: "SizeId");
         }
 
         /// <inheritdoc />
@@ -570,13 +460,13 @@ namespace Before.Migrations
                 name: "Carts");
 
             migrationBuilder.DropTable(
-                name: "ProductImages");
+                name: "Colors");
 
             migrationBuilder.DropTable(
-                name: "ProductSeasons");
+                name: "Seasons");
 
             migrationBuilder.DropTable(
-                name: "SizeProducts");
+                name: "Sizes");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -585,16 +475,7 @@ namespace Before.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Seasons");
-
-            migrationBuilder.DropTable(
-                name: "Colors");
-
-            migrationBuilder.DropTable(
                 name: "Products");
-
-            migrationBuilder.DropTable(
-                name: "Sizes");
 
             migrationBuilder.DropTable(
                 name: "Categories");

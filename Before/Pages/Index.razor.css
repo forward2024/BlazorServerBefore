@@ -3,13 +3,10 @@
     width: 100%;
     display: grid;
     grid-template-columns: 3fr 1fr;
-    grid-template-areas:
-        "products-grid filter-container";
     align-items: start;
 }
 
 .products-grid {
-    grid-area: products-grid;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
 }
@@ -36,7 +33,6 @@
     background: transparent;
     box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.3);
 }
-
     .product-item::before {
         content: "";
         position: absolute;
@@ -47,7 +43,6 @@
         background-color: rgba(0, 0, 0, .25);
         z-index: 10;
     }
-
     .product-item:hover::before {
         background-color: rgba(0, 0, 0, 0);
         width: 300px;
@@ -65,199 +60,191 @@
 .product-info {
     padding: 1rem 0;
 }
-
     .product-info h3 {
         font-size: 1.2rem;
         font-weight: bold;
         margin-bottom: 0.5rem;
     }
-
     .product-info .product-price {
         font-size: 1.1rem;
         color: #f44336;
     }
 
 
+
+
+
+
+
 .filter-container {
-    grid-area: filter-container;
     display: grid;
 }
 
 
-
-
-
-
-.form-check {
-    transform: scale(0);
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, max-height 0.3s ease-in-out;
-    max-height: 0;
-    overflow: hidden;
-}
-
-    .form-check.show-categories {
-        transform: scale(1);
-        max-height: 50px;
-        transition-delay: calc(var(--index) * 0.05s);
-    }
-
-    .form-check.show-colors {
-        transform: scale(1);
-        max-height: 50px;
-        transition-delay: calc(var(--index) * 0.05s);
-    }
-
-
-
-.FillCategories {
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.Fill {
+    padding: 30px;
     background-color: #f8f8f8;
-    box-shadow: inset 0px 10px 30px rgba(0, 0, 0, 0.2);
-    transition: all .3s ease-in-out;
-}
-.categories-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    box-shadow: inset 0px 10px 60px rgba(0, 0, 0, 0.3);
+    display: grid;
+    gap: 20px;
 }
 
-.box_category {
-    display: flex;
-    place-items: center;
+
+.fil-container-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;
 }
+.fil-container-3 {
+    display: flex;
+    justify-content: space-evenly;
+    height: 35px;
+}
+.fil-container-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-items: center;
+    height: 35px;
+}
+
+
+.Fill > div:last-child {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.fil-container-season {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr 1fr;
+    justify-items: center;
+    gap: 15px;
+}
+
 
 .custom-checkbox {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
+    position: relative;
+    padding-left: 30px;
     cursor: pointer;
+    font-size: 15px;
     user-select: none;
+    height: 25px;
+    line-height: 25px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
+    .custom-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
 
-.custom-input {
+.checkmark {
     position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-}
-
-.custom-checkmark {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
     height: 25px;
     width: 25px;
     background-color: #ccc;
     border-radius: 50%;
-    margin-right: 8px;
-    transform: rotate(-50deg);
-    transition: all .5s;
 }
 
-.custom-checkbox:hover .custom-checkmark {
-    background-color: #b3b3b3;
+.custom-checkbox:hover input ~ .checkmark {
+    background-color: #bfbfbf;
 }
 
-.custom-checkmark::after {
+.custom-checkbox input:checked ~ .checkmark {
+    background: rgb(255,0,0);
+    background: linear-gradient(145deg, rgba(255,0,0,1) 10%, rgba(255,0,182,1) 50%, rgba(245,255,0,1) 90%);
+}
+
+.checkmark:after {
     content: "";
+    position: absolute;
     display: none;
-    width: 11px;
-    height: 11px;
-    background-color: white;
-    border-radius: 50%;
 }
 
-.custom-input:checked ~ .custom-checkmark::after {
+.custom-checkbox input:checked ~ .checkmark:after {
     display: block;
 }
 
-.custom-input:checked ~ .custom-checkmark {
-    background: rgb(255,252,0);
-    background: linear-gradient(90deg, rgba(255,252,0,1) 0%, rgba(255,0,0,1) 50%, rgba(209,0,255,1) 100%);
-    transition: background-color 150ms ease-in-out;
-}
-
-.but-category {
-    display: flex;
-}
-
-
-
-.FillColors {
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #f8f8f8;
-    box-shadow: inset 0px 10px 30px rgba(0, 0, 0, 0.2);
-    transition: all .3s ease-in-out;
-}
-
-.colors-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    transition: transform 0.5s;
-}
-
-.color-container input[type="checkbox"] {
-    -webkit-appearance: none;
-    width: 45px;
-    height: 45px;
-    background-color: @item.Name;
-    outline: none;
+.custom-checkbox .checkmark:after {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
+    background: white;
+}
+
+
+
+
+
+
+.color-checkbox {
     position: relative;
-    transition: all .5s;
+    padding-left: 35px;
+    cursor: pointer;
+    user-select: none;
 }
 
-    .color-container input[type="checkbox"]:hover {
-        box-shadow: inset 0px 0px 20px rgba(0, 0, 0, 1);
+    .color-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
     }
 
-    .color-container input[type="checkbox"]:checked {
-        box-shadow: inset 0px 0px 20px rgba(0, 0, 0, 1);
+.color-checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+}
+
+    .color-checkmark::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background-color: rgba(0,0,0,0.3);
+        z-index: 1;
+        opacity: 0;
     }
 
-        .color-container input[type="checkbox"]:checked::after {
-            content: "";
-            display: block;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 24px;
-            height: 24px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path  style="color:white" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M464 128L240 384l-96-96M144 384l-96-96M368 128L232 284"/></svg>');
-            background-size: contain;
-            background-repeat: no-repeat;
-        }
+    .color-checkmark::after {
+        content: "✓";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 20px;
+        color: white;
+        z-index: 2;
+        display: none;
+    }
 
-
-
-
-.FillSeason {
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #f8f8f8;
-    box-shadow: inset 0px 10px 30px rgba(0, 0, 0, 0.2);
-    transition: all .3s ease-in-out;
+.color-checkbox:hover input ~ .color-checkmark::before {
+    opacity: 0.5;
 }
 
-.seasons-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+.color-checkbox input:checked ~ .color-checkmark::before {
+    opacity: 0.7;
 }
 
-.box_season {
-    display: flex;
-    place-items: center;
+.color-checkbox input:checked ~ .color-checkmark::after {
+    display: block;
 }

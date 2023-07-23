@@ -1,13 +1,12 @@
-﻿@implements IDisposable
-@inject BlazorService BlazorService
+﻿@inject BlazorService BlazorService
 @inject IProduct ProductService
-@inject IFillter FillterService
+@inject IFilter FillterService
 @page "/"
 
 <PageTitle>...</PageTitle>
 <div class="container">
     <div class="products-grid">
-        @foreach (var (item, index) in BlazorService.Products.Select((value, index) => (value, index)))
+        @foreach (var (item, index) in (FillterService.activeFilter() ? FillterService.Products : BlazorService.Products).Select((value, index) => (value, index)))
         {
             <a href="/product/@item.Id" class="product-item">
                 <AutoSliderImage Id="@item.Id" Index="@index" Images="@item.Images" />
@@ -17,87 +16,88 @@
 
 
     <div class="filter-container">
-        <div class="FillSeason">
-            <div class="seasons-container">
+        <div class="Fill">
+            <div class="fil-container-season">
                 @foreach (var item in BlazorService.Seasons)
                 {
-                    <div class="box_season">
-                        <label class="custom-checkbox" for="@item.Name">
-                            <input class="custom-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillSeason(item.Name, (bool)args.Value))" />
-                            <span class="custom-checkmark">
-                                <span class="custom-checkmark-inner"></span>
-                                <span class="custom-checkmark-inner"></span>
-                            </span>
-                            @item.Name
-                        </label>
-                    </div>
+                    <label class="custom-checkbox" for="@item.Name">
+                        <input class="custom-input" type="checkbox" id="@item.Name" value="@item.Id" onchange="@((ChangeEventArgs args) => FillSeason(item.Name, (bool)args.Value))" />
+                        <span class="checkmark"></span>
+                        @item.Name
+                    </label>
                 }
             </div>
         </div>
 
-        <div class="FillCategories">
-            <div class="categories-container">
-                @foreach (var (item, index) in BlazorService.Categories.Select((value, index) => (value, index)))
+        <div class="Fill">
+            @{
+                var groupedItemsSizes = BlazorService.Sizes
+                .Select((value, index) => new { Item = value, Index = index, Group = (index / 5) * 2 + ((index % 5 < 3) ? 0 : 1) })
+                .GroupBy(x => x.Group)
+                .Select(group => new { Group = group.Key, Items = group.Select(x => x.Item) })
+                .ToList();
+
+                foreach (var group in groupedItemsSizes)
                 {
-                    <div class="box_category @(index <= 2 ? "" : "form-check") @(showMoreCategories && index >= 2 ? "show-categories" : "")" style="--index: @(index - 2)">
-                        <label class="custom-checkbox" for="@item.Name">
-                            <input class="custom-input" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillCategory(item.Name, (bool)args.Value))" />
-                            <span class="custom-checkmark">
-                                <span class="custom-checkmark-inner"></span>
-                                <span class="custom-checkmark-inner"></span>
-                            </span>
-                            @item.Name
-                        </label>
+                    <div class="@(group.Group % 2 == 0 ? "fil-container-3" : "fil-container-2")">
+                        @foreach (var item in group.Items)
+                        {
+                            <label class="custom-checkbox" for="@item.Name">
+                                <input class="custom-input" type="checkbox" id="@item.Name" value="@item.Id" onchange="@((ChangeEventArgs args) => FillSize(item.Name, (bool)args.Value))" />
+                                <span class="checkmark"></span>
+                                @item.Name
+                            </label>
+                        }
                     </div>
                 }
-            </div>
-            <div class="dropdown-footer">
-                <button class="reset-btn  but-category" @onclick="ToggleMoreCategories">
-                    @if (showMoreCategories)
-                    {
-                        <svg style="transform: rotate(180deg);" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144" />
-                        </svg>
-                    }
-                    else
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144" />
-                        </svg>
-                    }
-                    Категорії
-                </button>
-            </div>
+            }
         </div>
 
-        <div class="FillColors">
-            <div class="colors-container">
-                @foreach (var (item, index) in BlazorService.Colors.Select((value, index) => (value, index)))
+        <div class="Fill">
+            @{
+                var groupedItemsCategories = BlazorService.Categories
+                .Select((value, index) => new { Item = value, Index = index, Group = (index / 5) * 2 + ((index % 5 < 3) ? 0 : 1) })
+                .GroupBy(x => x.Group)
+                .Select(group => new { Group = group.Key, Items = group.Select(x => x.Item) })
+                .ToList();
+
+                foreach (var group in groupedItemsCategories)
                 {
-                    <div class="box_color @(index < 6 ? "" : "form-check") @(showMoreColors && index >= 6 ? "show-colors" : "")" style="--index: @(index-6)">
-                        <div class="color-container">
-                            <input style="background-color: @item.Name;" class="color-checkbox" type="checkbox" value="@item.Id" id="@item.Name" onchange="@((ChangeEventArgs args) => FillColor(item.Name, (bool)args.Value))" />
-                        </div>
+                    <div class="@(group.Group % 2 == 0 ? "fil-container-3" : "fil-container-2")">
+                        @foreach (var item in group.Items)
+                        {
+                            <label class="custom-checkbox" for="@item.Name">
+                                <input class="custom-input" type="checkbox" id="@item.Name" value="@item.Id" onchange="@((ChangeEventArgs args) => FillCategory(item.Name, (bool)args.Value))" />
+                                <span class="checkmark"></span>
+                                @item.Name
+                            </label>
+                        }
                     </div>
                 }
-            </div>
-            <div class="dropdown-footer">
-                <button class="reset-btn" @onclick="ToggleMoreColors">
-                    @if (showMoreColors)
-                    {
-                        <svg style="transform: rotate(180deg);" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144" />
-                        </svg>
-                    }
-                    else
-                    {
-                        <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M112 184l144 144 144-144" />
-                        </svg>
-                    }
-                    Кольори
-                </button>
-            </div>
+            }
+        </div>
+
+        <div class="Fill">
+            @{
+                var groupedItemsColors = BlazorService.Colors
+                .Select((value, index) => new { Item = value, Index = index, Group = (index / 7) * 2 + ((index % 7 < 4) ? 0 : 1) })
+                .GroupBy(x => x.Group)
+                .Select(group => new { Group = group.Key, Items = group.Select(x => x.Item) })
+                .ToList();
+
+                foreach (var group in groupedItemsColors)
+                {
+                    <div class="@(group.Group % 2 == 0 ? "fil-container-4" : "fil-container-3")">
+                        @foreach (var item in group.Items)
+                        {
+                            <label class="color-checkbox" for="@item.Name">
+                                <input class="color-input" type="checkbox" id="@item.Name" value="@item.Id" onchange="@((ChangeEventArgs args) => FillColor(item.Name, (bool)args.Value))" />
+                                <span class="color-checkmark" style="background-color: @item.Name;"></span>
+                            </label>
+                        }
+                    </div>
+                }
+            }
         </div>
     </div>
 </div>
@@ -121,40 +121,32 @@
         showMoreSeasons = !showMoreSeasons;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        BlazorService.ProductAdded += UpdateItems;
+        FillterService.ClearFilters();
         StateHasChanged();
     }
 
-    private async Task FillTypeItems(string type, bool value)
-    {
-        await FillterService.FillTypeItems(type, value);
-        await OnFilterChanged.InvokeAsync();
-    }
+
+
     private async Task FillCategory(string category, bool value)
     {
         await FillterService.FillCategory(category, value);
-        await OnFilterChanged.InvokeAsync();
+        StateHasChanged();
     }
     private async Task FillColor(string color, bool value)
     {
         await FillterService.FillColor(color, value);
-        await OnFilterChanged.InvokeAsync();
+        StateHasChanged();
     }
     private async Task FillSeason(string season, bool value)
     {
         await FillterService.FillSeason(season, value);
-        await OnFilterChanged.InvokeAsync();
+        StateHasChanged();
     }
-
-    private async void UpdateItems()
+    private async Task FillSize(string size, bool value)
     {
-        await InvokeAsync(StateHasChanged);
-    }
-
-    public void Dispose()
-    {
-        BlazorService.ProductAdded -= UpdateItems;
+        await FillterService.FillSize(size, value);
+        StateHasChanged();
     }
 }

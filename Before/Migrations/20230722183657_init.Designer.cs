@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Before.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230705102253_Ini")]
-    partial class Ini
+    [Migration("20230722183657_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -234,28 +234,6 @@ namespace Before.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Before.Data.Models.ImageModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ImageURL")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductImages");
-                });
-
             modelBuilder.Entity("Before.Data.Models.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -310,12 +288,7 @@ namespace Before.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("Seasons");
 
@@ -398,12 +371,7 @@ namespace Before.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("Sizes");
 
@@ -683,13 +651,6 @@ namespace Before.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Before.Data.Models.ImageModel", b =>
-                {
-                    b.HasOne("Before.Data.Models.Product", null)
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId");
-                });
-
             modelBuilder.Entity("Before.Data.Models.Product", b =>
                 {
                     b.HasOne("Before.Data.Models.Category", "Category")
@@ -715,20 +676,6 @@ namespace Before.Migrations
                     b.Navigation("Seller");
 
                     b.Navigation("TypeItem");
-                });
-
-            modelBuilder.Entity("Before.Data.Models.Season", b =>
-                {
-                    b.HasOne("Before.Data.Models.Product", null)
-                        .WithMany("Seasons")
-                        .HasForeignKey("ProductId");
-                });
-
-            modelBuilder.Entity("Before.Data.Models.Size", b =>
-                {
-                    b.HasOne("Before.Data.Models.Product", null)
-                        .WithMany("Sizes")
-                        .HasForeignKey("ProductId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -780,15 +727,6 @@ namespace Before.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Before.Data.Models.Product", b =>
-                {
-                    b.Navigation("Images");
-
-                    b.Navigation("Seasons");
-
-                    b.Navigation("Sizes");
                 });
 #pragma warning restore 612, 618
         }
