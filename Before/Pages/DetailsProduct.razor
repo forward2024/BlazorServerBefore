@@ -1,4 +1,7 @@
 ﻿@inject BlazorService BlazorService
+@inject ILikeCartService LikeService
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
 @page "/product/{Id:int}"
 
 <div class="item_details">
@@ -13,8 +16,8 @@
                 <p class="product-price">@product.Price.ToString() UAH</p>
             </div>
             <div class="buttons">
-                <button class="add_cart">Добавить в корзину</button>
-                <button class="add_favorites">В улюблене</button>
+                <button class="add_cart" id="add_cart" @onclick="@(() => AddCartAsync("add_cart", "Cart"))">Добавить в корзину</button>
+                <button class="add_favorites" id="add_favorites" @onclick="@(() => AddLikeAsync("add_favorites", "Like"))">В улюблене</button>
             </div>
             <div class="product-desc card">
                 <h4>Description</h4>
@@ -76,7 +79,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Product v = new Product();
         product = BlazorService.GetItemById(Id);
+    }
+
+    void AddLike()
+    {
+        LikeService.AddItemInLike(product);
+    }
+
+    async Task AddLikeAsync(string startElementId, string endElementId)
+    {
+        var startElementCoordinates = await JsRuntime.InvokeAsync<double[]>("getElementCoordinates", startElementId);
+        var endElementCoordinates = await JsRuntime.InvokeAsync<double[]>("getElementCoordinates", endElementId);
+
+        await JsRuntime.InvokeVoidAsync("moveHeart", startElementId, startElementCoordinates[0], startElementCoordinates[1], endElementCoordinates[0], endElementCoordinates[1], "heart.png");
+    }
+
+    void AddCart()
+    {
+        LikeService.AddItemInCart(product);
+    }
+    async Task AddCartAsync(string startElementId, string endElementId)
+    {
+        var startElementCoordinates = await JsRuntime.InvokeAsync<double[]>("getElementCoordinates", startElementId);
+        var endElementCoordinates = await JsRuntime.InvokeAsync<double[]>("getElementCoordinates", endElementId);
+
+        await JsRuntime.InvokeVoidAsync("moveHeart", startElementId, startElementCoordinates[0], startElementCoordinates[1], endElementCoordinates[0], endElementCoordinates[1], "shopping-bag.png");
     }
 }

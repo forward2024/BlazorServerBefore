@@ -15,6 +15,7 @@ using Before.Data.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Identity;
+using Before.Service.ServiceLikeCart;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +46,7 @@ builder.Services.AddScoped<IColor, ColorService>();
 builder.Services.AddScoped<ISize, SizeService>();
 builder.Services.AddScoped<ISeason, SeasonService>();
 builder.Services.AddScoped<IFilter, FilterService>();
+builder.Services.AddScoped<ILikeCartService, LikeCartService>();
 builder.Services.AddSingleton<BlazorService>();
 builder.Services.AddSingleton<ActiveUserCount>();
 builder.Services.AddTransient<CircuitHandler, ActiveUserCircuitHandler>();

@@ -9,7 +9,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="~/" />
-    @*<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />*@
     <link href="css/site.css" rel="stylesheet" />
     <link href="Before.styles.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -33,3 +32,42 @@
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>
+<script>
+    window.getElementCoordinates = (elementId) => {
+        console.log(`Getting coordinates for element: ${elementId}`);
+        const element = document.getElementById(elementId);
+        const rect = element.getBoundingClientRect();
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const centerX = rect.left + scrollLeft + rect.width / 2;
+        const centerY = rect.top + scrollTop + rect.height / 2;
+        console.log(`Coordinates: ${centerX}, ${centerY}`);
+        return [centerX, centerY];
+    };
+</script>
+<script>
+    window.moveHeart = (startElementId, startX, startY, endX, endY, icon) => {
+        let heart = document.createElement('div');
+        heart.style.position = 'fixed';
+        heart.style.left = `${startX}px`;
+        heart.style.top = `${startY}px`;
+        heart.style.zIndex = "1000"
+        heart.innerHTML = `<img style="width: 30px" src="/${icon}"/>`;
+
+        document.body.appendChild(heart);
+
+        let frame = 0;
+        let animate = () => {
+            frame++;
+            let progress = frame / 35;
+            heart.style.left = `${startX + (endX - startX) * progress}px`;
+            heart.style.top = `${startY + (endY - startY) * progress}px`;
+            if (frame < 35) {
+                requestAnimationFrame(animate);
+            } else {
+                document.body.removeChild(heart);
+            }
+        };
+        animate();
+    };
+</script>
