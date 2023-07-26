@@ -16,6 +16,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.Identity;
 using Before.Service.ServiceLikeCart;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,12 +34,32 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 var dbSettingsSection = builder.Configuration.GetSection("MongoDb");
 var dbSettings = dbSettingsSection.Get<MongoDBSettings>();
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+    .AddCookie()
+.AddGoogle(options =>
+{
+    options.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID") ?? throw new ArgumentNullException("GOOGLE_CLIENT_ID");
+    options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET") ?? throw new ArgumentNullException("GOOGLE_CLIENT_SECRET");
+});
+
+
+
 
 builder.Services.AddSingleton<IMongoDBSettings>(dbSettings);
 builder.Services.AddScoped(sp => new MongoDbContext(sp.GetRequiredService<IMongoDBSettings>()));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromDays(1);
+});
 builder.Services.AddScoped(sp => new HttpClient());
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
 builder.Services.AddScoped<ITypeItem, TypeItemService>();
@@ -90,6 +114,7 @@ else
     app.UseHsts();
 }
 
+app.UseSession();
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();

@@ -93,6 +93,7 @@
         var endElementCoordinates = await JsRuntime.InvokeAsync<double[]>("getElementCoordinates", endElementId);
 
         await JsRuntime.InvokeVoidAsync("moveHeart", startElementId, startElementCoordinates[0], startElementCoordinates[1], endElementCoordinates[0], endElementCoordinates[1], "heart.png");
+        AddLike();
     }
 
     void AddCart()
@@ -105,5 +106,6 @@
         var endElementCoordinates = await JsRuntime.InvokeAsync<double[]>("getElementCoordinates", endElementId);
 
         await JsRuntime.InvokeVoidAsync("moveHeart", startElementId, startElementCoordinates[0], startElementCoordinates[1], endElementCoordinates[0], endElementCoordinates[1], "shopping-bag.png");
+        AddCart();
     }
 }

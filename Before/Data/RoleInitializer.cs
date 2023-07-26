@@ -9,7 +9,7 @@ namespace Before.Data
         {
             string adminEmail = "doreneto24122412@gmail.com";
             string password = "12345678zZ!";
-            string[] roleNames = { "Admin", "User", "Seller" }; // Создайте список ролей, которые вы хотите добавить
+            string[] roleNames = { "Admin", "User", "Seller" };
 
             foreach (var roleName in roleNames)
             {
@@ -21,7 +21,7 @@ namespace Before.Data
 
             if (!userManager.Users.Any())
             {
-                User admin = new User { Email = adminEmail, UserName = adminEmail, EmailConfirmed = true };
+ /*               User admin = new User { Email = adminEmail, UserName = adminEmail, EmailConfirmed = true };
                 IdentityResult result = await userManager.CreateAsync(admin, password);
                 if (result.Succeeded)
                 {
@@ -30,7 +30,7 @@ namespace Before.Data
                 else
                 {
                     throw new InvalidOperationException("Не удалось создать администратора с предоставленными данными.");
-                }
+                }*/
             }
         }
     }

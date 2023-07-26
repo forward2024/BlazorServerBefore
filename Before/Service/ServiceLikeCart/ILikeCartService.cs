@@ -4,13 +4,11 @@ namespace Before.Service.ServiceLikeCart
 {
     public interface ILikeCartService
     {
-        List<Product> LikeProducts { get; }
-        Task AddItemInLike(Product product);
-        Task RemoveItemIntoLike(Product product);
-        List<Product> CartProducts { get; }
-        Task AddItemInCart(Product product);
-        Task RemoveItemIntoCart(Product product);
-        Task Increment();
-        Task Decrement();
+        void AddItemInLike(Product product);
+        void RemoveItemFromLike(Product product);
+        void AddItemInCart(Product product);
+        void RemoveItemFromCart(Product product);
+        List<Cart> GetCart();
+        List<Cart> GetLikes();
     }
 }

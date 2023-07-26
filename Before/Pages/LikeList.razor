@@ -1,10 +1,49 @@
-﻿@page "/likelist"
-@inject ILikeCartService LikeService
+﻿@page "/favorites"
+@inject ILikeCartService LikeCartService
 
-<main>
-    <button>Click me</button>
-</main>
+<h2>Favorites</h2>
+
+@if (FavoriteProducts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Count</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in FavoriteProducts)
+            {
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>@item.Count</td>
+                    <td>
+                        <button @onclick="() => RemoveFromFavorites(item.Product)">Remove</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
+    private List<Cart> FavoriteProducts;
 
+    protected override async Task OnInitializedAsync()
+    {
+        FavoriteProducts = LikeCartService.GetLikes();
+    }
+
+    private void RemoveFromFavorites(Product product)
+    {
+        LikeCartService.RemoveItemFromLike(product);
+        FavoriteProducts = LikeCartService.GetLikes();
+        StateHasChanged();
+    }
 }
