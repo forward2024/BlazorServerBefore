@@ -13,7 +13,9 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "GOOGLE_CLIENT_ID": "507336274927-gk25mektuns57u22jl1hs9d5n6sh2o99.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "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"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7186;http://localhost:5211"
