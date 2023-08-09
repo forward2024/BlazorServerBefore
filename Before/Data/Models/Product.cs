@@ -1,9 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Reflection;
-using Microsoft.CodeAnalysis;
-using static AngleSharp.Css.Values.CssRadialGradientValue;
 
 namespace Before.Data.Models
 {

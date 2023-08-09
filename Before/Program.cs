@@ -8,22 +8,22 @@ global using Before.Service.ServiceAddition.ServiceSize;
 global using Before.Service.ServiceAddition.ServiceTypeItem;
 global using Before.Service.ServiceBlazor;
 global using Before.Service.ServiceFillter;
+global using Before.Data.Models;
+global using Microsoft.AspNetCore.Authentication;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using Microsoft.EntityFrameworkCore;
 using Before.Areas.Identity;
 using Before.Data;
-using Before.Data.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
-using Microsoft.AspNetCore.Identity;
 using Before.Service.ServiceLikeCart;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-
-
+using Before;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -36,19 +36,12 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 var dbSettingsSection = builder.Configuration.GetSection("MongoDb");
 var dbSettings = dbSettingsSection.Get<MongoDBSettings>();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-})
-    .AddCookie()
-.AddGoogle(options =>
-{
-    options.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID") ?? throw new ArgumentNullException("GOOGLE_CLIENT_ID");
-    options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET") ?? throw new ArgumentNullException("GOOGLE_CLIENT_SECRET");
-});
-
+builder.Services.AddAuthentication()
+        .AddGoogle(options =>
+        {
+            options.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID");
+            options.ClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET");
+        });
 
 
 
@@ -81,7 +74,6 @@ builder.Services.AddTransient<CircuitHandler, ActiveUserCircuitHandler>();
 
 var app = builder.Build();
 
-
 using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
@@ -106,6 +98,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 
+
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -126,7 +119,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseMiddleware<MyMiddleware>();
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapBlazorHub();
